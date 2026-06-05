@@ -44,3 +44,6 @@ id_ed25519*
 
 # ── Gradle wrapper: keep jar + props, ignore local caches already covered above ──
 !gradle/wrapper/gradle-wrapper.jar
+
+# CI Minecraft server test scratch dir
+run-server/

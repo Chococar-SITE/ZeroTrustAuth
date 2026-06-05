@@ -370,9 +370,9 @@ final class DiscordNotifier implements Notifier {
             String reply = outcome == ConfirmResult.CONFIRMED
                     ? "✅ 已確認，正在解鎖管理員權限。"
                     : "❌ 已標記為非本人操作，已觸發緊急警報，建議立即變更帳號密碼。";
-            // 回覆並停用按鈕，避免重複點擊。
-            event.editComponents().queue(null, e -> {});
-            event.getHook().sendMessage(reply).setEphemeral(true).queue(null, e -> {});
+            // 以 ephemeral 回覆完成互動 ack；再停用原訊息按鈕避免重複點擊（獨立的 REST 編輯）。
+            event.reply(reply).setEphemeral(true).queue(null, e -> {});
+            event.getMessage().editMessageComponents().queue(null, e -> {});
         }
     }
 }
