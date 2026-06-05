@@ -1,0 +1,51 @@
+# ZeroTrustAuth 範例設定 — 複製為 config.yml 後填入你的值。
+# ⚠️ config.yml 已列入 .gitignore，切勿提交任何真實憑證。
+# ⚠️ 秘密（Bot Token、HMAC 密鑰鹽）一律走「環境變數」，不要寫在這裡。
+
+admins:
+  - uuid: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"    # 管理員帳號 UUID（佔位符）
+    keys:                                           # 可註冊多把公鑰（見計劃 3.6）
+      - label: "desktop"
+        public_key: "<BASE64_ED25519_PUBLIC_KEY>"   # 只放「公鑰」；公鑰外洩無法偽造簽名
+        source: "generated"                         # generated | ssh（供審計用）
+        last_used: ""
+
+settings:
+  session_ttl_hours: 4
+  max_attempts: 3
+  option_a_timeout_seconds: 10
+  option_b_token_ttl_minutes: 5
+  enrollment_token_ttl_minutes: 10       # 首次註冊碼有效期
+  enrollment_max_attempts: 5             # 註冊碼錯誤上限，超過觸發警報
+  allow_fallback: true                   # false = 嚴格模式，僅允許選項 A（Ed25519）
+  freeze_packet_limit_per_second: 20     # 凍結期間封包速率限制
+  trusted_device_window_minutes: 15      # 信任裝置免驗證重連上限（僅選項 A）
+  strip_vanilla_op: true                 # 登入時剝奪 ops.json 原版 OP
+  fail_closed: true                      # 系統異常一律拒絕授權（不建議關閉）
+
+security:
+  signature_domain: "MC-ZEROTRUST-AUTH-v1:"   # 領域分隔前綴，客戶端／伺服器須一致
+  startup_self_test: true                     # 啟動自檢，任一項失敗進入安全模式
+  # IP_HMAC_SECRET 從環境變數讀取（日誌 IP 以 HMAC-SHA256 雜湊，禁用裸 sha256）
+
+discord:
+  # DISCORD_BOT_TOKEN 從環境變數讀取，切勿寫入此檔
+  admin_discord_id: "<YOUR_DISCORD_USER_ID>"
+  notify_webhook: ""              # ⚠️ Webhook URL 屬敏感憑證；建議留空或改用環境變數，勿提交
+  notify_cooldown_seconds: 60     # 登入請求 DM 冷卻，防通知轟炸
+  fallback_channel_id: ""         # DM 失敗時的後備私人頻道
+  # 提醒：管理員 Discord 帳號務必開啟 2FA，選項 B 安全性等同此帳號
+
+logging:
+  format: "json"                  # 結構化日誌，不記錄任何秘密
+  path: "logs/zerotrust.log"
+  rotation: "daily"               # 每日切檔
+  retention_days: 90              # 保留 90 天後自動清除
+
+messages:
+  prompt_option_a: "§b正在驗證身份，請稍候..."
+  prompt_option_b: "§e請在 Discord 確認登入請求"
+  success: "§a管理員身份驗證成功"
+  fail: "§c驗證失敗，剩餘 {remaining} 次機會"
+  kicked: "§c驗證失敗次數過多"
+  fallback_disabled: "§c此帳號僅允許金鑰驗證，請確認客戶端 Mod 已安裝"

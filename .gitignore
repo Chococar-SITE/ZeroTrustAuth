@@ -1,0 +1,43 @@
+# ── Build ──────────────────────────────────────────────
+.gradle/
+build/
+**/build/
+out/
+bin/
+*.class
+
+# ── IDE ────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+*.code-workspace
+
+# ── OS ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs / runtime ─────────────────────────────────────
+logs/
+*.log
+run/
+server/
+
+# ── 🔐 Secrets — 切勿提交（公開 Repo）────────────────────
+.env
+.env.*
+!.env.example
+config.yml
+*.local.yml
+*.secret.yml
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+secrets/
+id_ed25519*

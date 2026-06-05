@@ -1,0 +1,22 @@
+title = "ZeroTrustAuth gitleaks config"
+
+# 沿用 gitleaks 內建規則集
+[extend]
+useDefault = true
+
+# 允許清單：文件與範例檔中的佔位符，避免誤報
+[allowlist]
+description = "Placeholders in docs and example config"
+paths = [
+  '''config\.example\.yml''',
+  '''README\.md''',
+  '''CLAUDE\.md''',
+  '''SECURITY\.md''',
+  '''docs/.*''',
+]
+regexes = [
+  '''xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx''',
+  '''<[A-Z_]+>''',
+  '''MCowBQYDK2V[A-Za-z0-9+/]+\.\.\.''',
+  '''https://discord\.com/api/webhooks/\.\.\.''',
+]

@@ -1,0 +1,31 @@
+name: CodeQL
+
+# 僅在有 Java/Kotlin 原始碼異動時觸發（骨架就緒前不會執行）。
+on:
+  push:
+    branches: [ main ]
+    paths: [ '**/*.java', '**/*.kt', '.github/workflows/codeql.yml' ]
+  pull_request:
+    paths: [ '**/*.java', '**/*.kt' ]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (Java/Kotlin)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+          build-mode: none   # 免建置分析，適用複雜 Minecraft 依賴
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java-kotlin"
