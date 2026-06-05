@@ -24,6 +24,16 @@ subprojects {
         options.encoding = "UTF-8"
     }
 
+    // 中文註解：確保 Javadoc / 編譯使用 UTF-8 且不因 doclint 失敗。
+    tasks.withType<Javadoc>().configureEach {
+        options.encoding = "UTF-8"
+        (options as StandardJavadocDocletOptions).apply {
+            charSet = "UTF-8"
+            docEncoding = "UTF-8"
+            addStringOption("Xdoclint:none", "-quiet")
+        }
+    }
+
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
         testLogging {

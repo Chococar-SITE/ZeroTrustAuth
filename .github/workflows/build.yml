@@ -14,30 +14,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  gradle:
-    name: Build & Test (Java ${{ matrix.java }})
+  build:
+    name: Build & Unit Test
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        java: [ '17', '21' ]   # NeoForge 需 21+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }}
+          java-version: '21'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build & test
-        run: |
-          if [ -f ./gradlew ]; then
-            chmod +x ./gradlew
-            ./gradlew build --no-daemon --stacktrace
-          else
-            echo "::notice::尚無 Gradle wrapper，跳過建置（待專案骨架就緒後自動啟用）。"
-          fi
+        run: ./gradlew build --no-daemon --stacktrace
+
+      - name: Upload plugin artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZeroTrustAuth-plugin
+          path: platform-paper/build/libs/*.jar
+          if-no-files-found: warn

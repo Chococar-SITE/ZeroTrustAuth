@@ -9,7 +9,6 @@ java {
     // 目標 Java 17 位元碼，最大化平台相容性（計劃要求 Java 17+）。
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-    withJavadocJar()
 }
 
 tasks.withType<JavaCompile>().configureEach {
