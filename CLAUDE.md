@@ -3,7 +3,13 @@
 Minecraft 伺服器「零信任身份驗證」系統。在 Mojang 帳號驗證之上，為**管理員**加一道**裝置層**驗證。核心：**Never Trust, Always Verify**。完整設計見 `docs/ZeroTrust_2FA_Plan.md`（本檔為精簡工作參考，細節再查原文）。
 
 ## 當前狀態
-規劃／骨架階段，**尚無功能程式碼**。開發順序：先 Core（Phase 1）再平台適配。一般玩家零感知；只有管理員帳號登入後被凍結，驗證通過才解鎖權限。
+**Core（Phase 1）＋ Paper 外掛（Phase 2）＋ Discord 選項 B（Phase 3）已實作並測試**：`:core` 110 項單元測試（純 JDK，本地可跑）＋ CI 啟動**真實 Paper 伺服器**的執行測試（`.github/workflows/mc-server-test.yml`）。Fabric／Forge／NeoForge 與客戶端 Mod 尚未實作（Phase 4–5）。
+- 已實作模組：`:core`（`ZeroTrustCore` 等）、`:platform-paper`（`ZeroTrustPlugin` 等）。
+- 沙箱網路限制：Maven Central／Gradle Portal 可達，但 paper-api／Fabric／Forge／NeoForge／Mojang maven 被封鎖 → `:core` 可本地建置測試，`:platform-paper` 僅能在 CI（開放網路）建置。
+- 一般玩家零感知；只有管理員帳號登入後被凍結，驗證通過才解鎖權限。
+
+## 建置 / 測試（實際指令）
+`./gradlew :core:test`（核心 110 測試，本地）· `./gradlew :platform-paper:shadowJar`（外掛 jar，CI）· `./gradlew build`（全建置＋測試）· `ci/mc-server-test.sh`（真實 Paper 伺服器執行測試，需連網）。
 
 ## 技術棧
 | 項目 | 版本 |
@@ -26,8 +32,6 @@ platform-{paper,fabric,forge,neoforge}/   各平台適配，皆實作 PlatformAd
 ```
 `PlatformAdapter`：freeze/unfreezePlayer、grant/revokeAdminPerm、kickPlayer、sendMessage、notifyConsole、isAdminAccount。**核心邏輯不得依賴任何平台 API。**
 
-## 建置（待骨架就緒）
-`./gradlew build`（全建置）· `./gradlew test` · `./gradlew :platform-paper:build`（單模組）。CI 偵測到 `gradlew` 即自動建置（見 `.github/workflows/`）。
 
 ## 🔒 不可違反的安全不變式（本專案「原意」核心）
 1. **Fail-Closed**：任何不確定（設定損毀、依賴缺失、後端不可用、元件崩潰）一律**拒絕授權**，絕不 fail-open。`fail_closed` 不可關閉。

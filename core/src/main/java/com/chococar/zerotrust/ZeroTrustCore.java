@@ -498,8 +498,9 @@ public final class ZeroTrustCore implements AuthEngine {
     }
 
     private void audit(UUID uuid, String name, AuthMethod method, AuthResult result, String sessionId) {
-        // IP 不在核心契約中（adapter 未暴露）；ip=null 則省略 ip_hmac 欄位（資料最小化）。
-        auditLog.log(clock.instant(), uuid, name, method, result, null, sessionId);
+        // IP 由平台適配提供（若可得）；記為 HMAC-SHA256（計劃 6.2），離線/不可得則省略 ip_hmac。
+        String ip = adapter.getPlayerIp(uuid).orElse(null);
+        auditLog.log(clock.instant(), uuid, name, method, result, ip, sessionId);
     }
 
     private String playerName(UUID uuid) {

@@ -48,4 +48,12 @@ public interface PlatformAdapter {
     boolean isOnline(UUID uuid);
 
     Optional<String> getPlayerName(UUID uuid);
+
+    /**
+     * 玩家當前連線 IP（若可得）。供審計日誌以 HMAC-SHA256 雜湊記錄（計劃 6.2）。
+     * 預設回傳空（核心將省略 {@code ip_hmac} 欄位，資料最小化）。
+     */
+    default Optional<String> getPlayerIp(UUID uuid) {
+        return Optional.empty();
+    }
 }

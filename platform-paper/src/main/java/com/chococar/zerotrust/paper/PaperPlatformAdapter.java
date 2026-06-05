@@ -255,6 +255,23 @@ final class PaperPlatformAdapter implements PlatformAdapter {
         return Optional.ofNullable(name);
     }
 
+    @Override
+    public Optional<String> getPlayerIp(UUID uuid) {
+        if (uuid == null) {
+            return Optional.empty();
+        }
+        Player p = Bukkit.getPlayer(uuid);
+        if (p == null) {
+            return Optional.empty();
+        }
+        java.net.InetSocketAddress addr = p.getAddress();
+        if (addr == null || addr.getAddress() == null) {
+            return Optional.empty();
+        }
+        // 僅回傳 IP 字串；雜湊由核心 AuditLog 以 HMAC-SHA256＋密鑰鹽處理（計劃 6.2）。
+        return Optional.of(addr.getAddress().getHostAddress());
+    }
+
     // ── 生命週期清理（由 onDisable 呼叫）────────────────────
 
     /**

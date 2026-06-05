@@ -5,11 +5,12 @@
 > 在 Mojang 帳號驗證之上，為**管理員**加一道「裝置層」驗證：就算帳號被完全盜用，沒有你的裝置或手機，入侵者也拿不到管理員權限。
 
 [![Build](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/build.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/build.yml)
+[![MC Server Test](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mc-server-test.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mc-server-test.yml)
 [![Secret Scan](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/secret-scan.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/secret-scan.yml)
 ![Java](https://img.shields.io/badge/Java-17%2B-orange)
-![Platforms](https://img.shields.io/badge/平台-Paper%20%7C%20Fabric%20%7C%20Forge%20%7C%20NeoForge-blue)
+![Platforms](https://img.shields.io/badge/平台-Paper-blue)
 
-> ⚠️ **狀態：規劃／開發中** — 目前為設計與專案骨架階段，尚無可用發行版。
+> **狀態：Paper MVP 可用** — 核心引擎（Phase 1）與 Paper 外掛（Phase 2）＋ Discord 帶外驗證（Phase 3）已實作並通過測試：**110 項核心單元測試** ＋ CI 中啟動**真實 Paper 伺服器**的執行測試。Fabric／Forge／NeoForge 伺服器端與客戶端 Mod 為後續里程碑（Phase 4–5，見[開發藍圖](#開發藍圖)）。
 
 ## 這是什麼
 
@@ -61,17 +62,19 @@
 
 客戶端 Mod 以 Architectury 跨 Fabric／Forge／NeoForge 共用核心邏輯。
 
-## 建置（WIP）
+## 建置與測試
 
-需 **JDK 17+**（NeoForge 模組需 21+）。
+需 **JDK 21**（Paper 1.21 需要；核心目標位元碼為 Java 17）。
 
 ```bash
-./gradlew build          # 全建置
-./gradlew test           # 測試
-./gradlew :platform-paper:build
+./gradlew build                      # 全建置 + 測試
+./gradlew :core:test                 # 僅核心單元測試（110 項，純 JDK）
+./gradlew :platform-paper:shadowJar  # 產生 Paper 外掛 jar（已內嵌 JDA 並重定位）
 ```
 
-> 專案骨架完成後，將補上發行產物與伺服器安裝說明。
+產物：`platform-paper/build/libs/platform-paper-*.jar` —— 放入伺服器 `plugins/` 即可。
+
+**真實伺服器測試**：CI 的 *MC Server Test* 工作流會下載 Paper、啟動伺服器、確認外掛通過啟動自檢並可執行 `authkey enroll`；本地亦可執行 `ci/mc-server-test.sh`（需可連網下載 Paper）。
 
 ## 設定
 
@@ -93,14 +96,14 @@
 
 ## 開發藍圖
 
-| 階段 | 內容 |
-|--|--|
-| Phase 1 | Core 模組（挑戰、簽名驗證、Session、PublicKeyStore、Enrollment）|
-| Phase 2 | Paper 插件 MVP（凍結、剝奪原版 OP、transient 權限、速率限制）|
-| Phase 3 | Discord Bot 整合，選項 B 帶外驗證 |
-| Phase 4 | Fabric / Forge / NeoForge 伺服器端適配 |
-| Phase 5 | 客戶端 Mod（Architectury），選項 A 自動簽名、SSH key 複用 |
-| Phase 6 | 整合測試、安全審查、文件 |
+| 階段 | 內容 | 狀態 |
+|--|--|--|
+| Phase 1 | Core 模組（挑戰、簽名驗證、Session、PublicKeyStore、Enrollment）| ✅ 完成（110 測試）|
+| Phase 2 | Paper 插件 MVP（凍結、剝奪原版 OP、transient 權限、速率限制）| ✅ 完成（真實伺服器 CI 測試）|
+| Phase 3 | Discord Bot 整合，選項 B 帶外驗證 | ✅ 完成（JDA）|
+| Phase 4 | Fabric / Forge / NeoForge 伺服器端適配 | ⏳ 規劃中 |
+| Phase 5 | 客戶端 Mod（Architectury），選項 A 自動簽名、SSH key 複用 | ⏳ 規劃中 |
+| Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（單元＋伺服器測試已就緒）|
 
 ## 貢獻
 
