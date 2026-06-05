@@ -39,7 +39,7 @@ jobs:
           java-version: '21'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       # Build ONLY the Paper plugin (shaded). Produces
       # platform-paper/build/libs/*.jar that the harness picks up.
