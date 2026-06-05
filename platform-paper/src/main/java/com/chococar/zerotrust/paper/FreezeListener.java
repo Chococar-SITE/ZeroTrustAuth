@@ -64,9 +64,9 @@ final class FreezeListener implements Listener {
         // 每次登入產生新的連線 ID，將 Nonce 綁定至此連線（計劃 3.2 / 3.5）。
         String connectionId = UUID.randomUUID().toString();
         connectionIds.put(uuid, connectionId);
+        // 引擎會凍結、剝奪原版 OP、送出凍結提示（MSG_FROZEN_PROMPT）並啟動驗證；
+        // 故此處不重複送提示，避免玩家收到兩次相同訊息。
         engine.onAdminJoin(uuid, player.getName(), connectionId);
-        // 引擎會凍結並啟動驗證；此處再送一則提示（與計劃 5.2 範例一致）。
-        player.sendMessage("§c請完成身份驗證以取得管理員權限");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

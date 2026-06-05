@@ -9,7 +9,12 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -40,9 +45,16 @@ public final class ZeroTrustPlugin extends JavaPlugin {
     /** 每次登入的連線 ID（listener 寫入、command 讀取）。 */
     private final Map<UUID, String> connectionIds = new ConcurrentHashMap<>();
 
+    /** 內嵌的預設設定資源名稱。
+     *  <p>注意：不可命名為 {@code config.yml}——本專案 {@code .gitignore} 有一條保護用的
+     *  {@code config.yml} 規則（避免提交含密的真實設定），會連帶把此內嵌資源排除於版控與 jar 之外，
+     *  導致 {@code saveDefaultConfig()} 在執行時找不到資源而拋例外。故改用未被忽略的檔名，並於
+     *  {@link #ensureDefaultConfig()} 手動複製成資料夾內的 {@code config.yml}。 */
+    static final String DEFAULT_CONFIG_RESOURCE = "config-default.yml";
+
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        ensureDefaultConfig();
         FileConfiguration yaml = getConfig();
 
         // ── 解析設定 ──（fail-closed：解析在純資料層，副作用由本方法承擔）
@@ -135,6 +147,41 @@ public final class ZeroTrustPlugin extends JavaPlugin {
         getLogger().info("ZeroTrustAuth 已啟用（管理員帳號數：" + adminSet.size()
                 + "，權限後端：" + (adapter.usingLuckPerms() ? "LuckPerms(transient)" : "Bukkit attachment")
                 + "，權限 node：" + loaded.adminPermissionNode + "）。");
+    }
+
+    /**
+     * 確保資料夾內存在 {@code config.yml}：不存在時，從內嵌的 {@link #DEFAULT_CONFIG_RESOURCE}
+     * 複製一份過去，再讓 {@link #getConfig()} 讀取。等同 {@code saveDefaultConfig()}，但避開
+     * {@code config.yml} 被 {@code .gitignore} 排除而無法內嵌的問題（見該常數註解）。
+     *
+     * <p>複製失敗不致命：{@link #getConfig()} 對缺檔會回傳空設定，{@link ConfigLoader} 則套用
+     * 計劃 7.3 的安全預設值（{@code fail_closed=true} 等），自檢仍可通過。
+     */
+    private void ensureDefaultConfig() {
+        File target = new File(getDataFolder(), "config.yml");
+        if (target.exists()) {
+            return;
+        }
+        try {
+            if (!getDataFolder().exists() && !getDataFolder().mkdirs()) {
+                getLogger().warning("無法建立資料夾：" + getDataFolder());
+            }
+            try (InputStream in = getResource(DEFAULT_CONFIG_RESOURCE)) {
+                if (in == null) {
+                    // 內嵌資源遺失（理論上不會發生）：留給 ConfigLoader 套用安全預設值。
+                    getLogger().warning("內嵌預設設定 " + DEFAULT_CONFIG_RESOURCE
+                            + " 遺失；將以內建安全預設值運作。");
+                    return;
+                }
+                Files.copy(in, target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                getLogger().info("已從內嵌預設建立 config.yml。");
+            }
+        } catch (IOException | RuntimeException e) {
+            // 不丟出 onEnable：以安全預設值繼續（fail-closed 由 ConfigLoader/SelfTest 保證）。
+            getLogger().warning("建立預設 config.yml 失敗（將以內建安全預設值運作）：" + e.getMessage());
+        }
+        // 確保 getConfig() 反映剛寫入的檔案。
+        reloadConfig();
     }
 
     @Override
