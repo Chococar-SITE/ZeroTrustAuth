@@ -489,8 +489,8 @@ main() {
   log "ZeroTrustAuth — Minecraft server execution test"
   read_mc_version
   locate_plugin_jar
-  download_paper
-  prepare_server_dir
+  prepare_server_dir     # create the clean server dir FIRST (it rm -rf's the dir)
+  download_paper         # ...then download Paper into it (dir must exist for curl -o)
   launch_server          # exits the script if the server never starts
 
   assert_self_test_passed
