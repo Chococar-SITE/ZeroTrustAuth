@@ -1,0 +1,23 @@
+name: ZeroTrustAuth
+version: "${version}"
+main: com.chococar.zerotrust.paper.ZeroTrustPlugin
+api-version: "1.21"
+author: Chococar-SITE
+description: Zero Trust device-layer authentication for Minecraft administrators (Never Trust, Always Verify).
+# LuckPerms is OPTIONAL — the plugin falls back to a Bukkit PermissionAttachment if it is absent.
+softdepend: [LuckPerms]
+
+commands:
+  authkey:
+    description: Manage Zero Trust admin authentication keys (enroll/upload/rotate/verify/list/revoke).
+    usage: |-
+      /authkey enroll <uuid>            (console) generate a one-time enrollment code
+      /authkey upload <pubkey> <code> [label]   upload a new public key
+      /authkey rotate <newpubkey> [label]       rotate an existing key (no code)
+      /authkey verify                            re-verify in-session
+      /authkey list                              list your keys
+      /authkey revoke <uuid> [label]    (console) revoke key(s) and terminate session
+
+# NOTE: This plugin intentionally declares NO permissions that default to op.
+# Admin authority is granted dynamically and transiently by the engine after
+# successful verification (see security invariant: permissions never persistent).
