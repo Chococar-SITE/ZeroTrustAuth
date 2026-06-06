@@ -4,25 +4,26 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     java
-    id("com.gradleup.shadow") version "8.3.5"
+    // Shadow 8.3.10+ 升級內嵌 ASM/jdependency 以支援 Java 25/26 位元碼（class major 69/70）；
+    // 8.3.5 會在 shadowJar 丟 "Unsupported class file major version 69"。8.3.x 亦支援 Gradle 9，
+    // 且維持與舊版相同的 import 與 DSL（minimize/relocate/mergeServiceFiles），故毋須升級 9.x 重寫。
+    id("com.gradleup.shadow") version "8.3.11"
 }
 
 java {
-    // 以 JDK 25 toolchain 編譯：Paper 26.1 的 API 為 Java 25（class major 69）位元碼，
-    // 需 JDK 25 的 javac 方能讀取其 class。
+    // Paper 26.1 的 API 為 Java 25 位元碼，且其 Gradle Module Metadata 宣告 org.gradle.jvm.version=25。
+    // 因此本外掛**必須**以 JDK 25 toolchain 編譯並 target Java 25——否則 Gradle 變體解析會直接拒絕
+    // paper-api（"is only compatible with JVM runtime version 25 or newer"）。輸出 major 69 位元碼，
+    // 由上方 Shadow 8.3.11（ASM 支援 major 69）負責 shade。Paper 26.1 伺服器執行於 Java 25。
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
-    // 但本外掛**輸出 Java 21（major 65）位元碼**（見下方 release 21）。原因：Shadow 8.3.5 內嵌的
-    // ASM 無法解析 major 69 類別（shadowJar 會丟 "Unsupported class file major version 69"）。
-    // Java 25 的 Paper 伺服器可正常載入 Java 21 位元碼，功能完全相同；如此既對齊 Paper 26.1，
-    // 又毋須冒險升級 Shadow 9.x（本專案僅 platform-paper 使用 shadow）。
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
 }
 
 repositories {
