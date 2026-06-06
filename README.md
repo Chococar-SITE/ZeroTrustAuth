@@ -6,11 +6,12 @@
 
 [![Build](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/build.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/build.yml)
 [![MC Server Test](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mc-server-test.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mc-server-test.yml)
+[![Mods](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods.yml)
 [![Secret Scan](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/secret-scan.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/secret-scan.yml)
 ![Java](https://img.shields.io/badge/Java-17%2B-orange)
-![Platforms](https://img.shields.io/badge/平台-Paper-blue)
+![Platforms](https://img.shields.io/badge/平台-Paper%20%7C%20Fabric%20%7C%20NeoForge%20%7C%20Forge-blue)
 
-> **狀態：Paper MVP 可用** — 核心引擎（Phase 1）與 Paper 外掛（Phase 2）＋ Discord 帶外驗證（Phase 3）已實作並通過測試：**110 項核心單元測試** ＋ CI 中啟動**真實 Paper 伺服器**的執行測試。Fabric／Forge／NeoForge 伺服器端與客戶端 Mod 為後續里程碑（Phase 4–5，見[開發藍圖](#開發藍圖)）。
+> **狀態：全平台可建置** — 核心＋Paper＋Discord（Phase 1–3）已測試（**120 項單元測試** ＋ CI 真實 Paper 伺服器執行測試）；Fabric／NeoForge（1.21.1）與 Forge（1.19.2 舊版）的**伺服器端與客戶端 Mod**（Phase 4–5）皆已實作並於 CI 建置。選項 A（Ed25519 簽名）在三種載入器皆端到端串通。
 
 ## 這是什麼
 
@@ -58,9 +59,9 @@
 | 平台 | Minecraft | 權限機制 | 狀態 |
 |--|--|--|--|
 | Paper / Spigot | 1.21.x | LuckPerms transient（無則 Bukkit attachment）| ✅ 真實伺服器 CI 測試 |
-| Fabric | 1.21.1 | 記憶體 transient 授權 | ✅ CI 建置 |
-| NeoForge | 1.21.1（現代 1.20.1+）| 記憶體 transient 授權 | ✅ CI 建置 |
-| Forge | **1.19.2（舊版）** | 記憶體 transient 授權 | 🔧 CI 建置中 |
+| Fabric | 1.21.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
+| NeoForge | 1.21.1（現代 1.20.1+）| 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
+| Forge | **1.19.2（舊版）** | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
 
 各平台皆實作同一 `PlatformAdapter`，凍結一律在最早 hook 套用（移動/背包/容器/方塊/聊天/無敵，僅放行 `/authkey`）。客戶端 Mod（選項 A 自動簽名）共用 `client-core`（Ed25519＋SSH key 複用）。
 
@@ -103,8 +104,9 @@
 | Phase 1 | Core 模組（挑戰、簽名驗證、Session、PublicKeyStore、Enrollment）| ✅ 完成（110 測試）|
 | Phase 2 | Paper 插件 MVP（凍結、剝奪原版 OP、transient 權限、速率限制）| ✅ 完成（真實伺服器 CI 測試）|
 | Phase 3 | Discord Bot 整合，選項 B 帶外驗證 | ✅ 完成（JDA）|
-| Phase 4 | Fabric / NeoForge（1.21.1）＋ Forge（1.19.2 舊版）伺服器端適配 | 🔧 Fabric/NeoForge ✅ CI、Forge 建置中 |
-| Phase 5 | 客戶端 Mod（選項 A 自動簽名、SSH key 複用，共用 `client-core`）| 🔧 `client-core` ✅（5 測試），各載入器封裝進行中 |
+| Phase 4 | Fabric / NeoForge（1.21.1）＋ Forge（1.19.2 舊版）伺服器端適配 | ✅ 完成（三載入器 CI 建置）|
+| Phase 5 | 客戶端 Mod（選項 A 自動簽名、SSH key 複用，共用 `client-core`）| ✅ 完成（client-fabric/neoforge/forge，CI 建置）|
+| Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（120 單元＋真實 Paper 伺服器＋6 個 mod 建置）|
 | Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（單元＋伺服器測試已就緒）|
 
 ## 貢獻
