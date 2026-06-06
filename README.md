@@ -11,7 +11,7 @@
 ![Java](https://img.shields.io/badge/Java-17%2B-orange)
 ![Platforms](https://img.shields.io/badge/平台-Paper%20%7C%20Fabric%20%7C%20NeoForge%20%7C%20Forge-blue)
 
-> **狀態：全平台可建置** — 核心＋Paper＋Discord（Phase 1–3）已測試（**120 項單元測試** ＋ CI 真實 Paper 伺服器執行測試）；Fabric／NeoForge（1.21.1）與 Forge（1.20.1 舊版旗艦）的**伺服器端與客戶端 Mod**（Phase 4–5）皆已實作並於 CI 建置。選項 A（Ed25519 簽名）在三種載入器皆端到端串通。
+> **狀態：全平台可建置** — 核心＋Paper＋Discord（Phase 1–3）已測試（**120 項單元測試** ＋ CI 真實 Paper 伺服器執行測試，現於 **MC 26.1.2**）；Fabric／NeoForge（**26.1**，CI 建置驗證）與 Forge（1.20.1 舊版旗艦）的**伺服器端與客戶端 Mod**（Phase 4–5）皆已實作並於 CI 建置。選項 A（Ed25519 簽名）在三種載入器皆端到端串通。
 
 ## 這是什麼
 
@@ -60,20 +60,20 @@
 
 | 平台 | 目前建置版本 | 權限機制 | 狀態 |
 |--|--|--|--|
-| Paper / Spigot | 1.21.1 | LuckPerms transient（無則 Bukkit attachment）| ✅ 真實伺服器 CI 測試 |
-| Fabric | 1.21.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
-| NeoForge | 1.21.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
+| Paper / Spigot | 26.1.2 | LuckPerms transient（無則 Bukkit attachment）| ✅ 真實伺服器 CI 測試 |
+| Fabric | 26.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
+| NeoForge | 26.1.2 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
 | Forge | 1.20.1（舊版旗艦）| 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
 
 各平台皆實作同一 `PlatformAdapter`，凍結一律在最早 hook 套用（移動/背包/容器/方塊/聊天/無敵，僅放行 `/authkey`）。客戶端 Mod（選項 A 自動簽名）共用 `client-core`（Ed25519＋SSH key 複用）。
 
 ## 建置與測試
 
-需 **JDK 21**（Paper 1.21 需要；核心目標位元碼為 Java 17）。
+需 **JDK 25**（Paper 26.1 / 現代線需要）＋ **JDK 21**（核心 toolchain，目標位元碼為 Java 17）；Forge 舊版線用 **JDK 17**。建置使用 **Gradle 9.4 wrapper**（Forge 因 ForgeGradle 6 不相容 Gradle 9，於獨立 job 用 pinned Gradle 8）。
 
 ```bash
 ./gradlew build                      # 全建置 + 測試
-./gradlew :core:test                 # 僅核心單元測試（110 項，純 JDK）
+./gradlew :core:test                 # 僅核心單元測試（110 項，純 JDK；需 Gradle 9.4 wrapper + JDK，沙箱已無法離線建置）
 ./gradlew :platform-paper:shadowJar  # 產生 Paper 外掛 jar（已內嵌 JDA 並重定位）
 ```
 
@@ -106,7 +106,7 @@
 | Phase 1 | Core 模組（挑戰、簽名驗證、Session、PublicKeyStore、Enrollment）| ✅ 完成（110 測試）|
 | Phase 2 | Paper 插件 MVP（凍結、剝奪原版 OP、transient 權限、速率限制）| ✅ 完成（真實伺服器 CI 測試）|
 | Phase 3 | Discord Bot 整合，選項 B 帶外驗證 | ✅ 完成（JDA）|
-| Phase 4 | Fabric / NeoForge（1.21.1）＋ Forge（1.20.1 舊版旗艦）伺服器端適配 | ✅ 完成（三載入器 CI 建置）|
+| Phase 4 | Fabric / NeoForge（26.1）＋ Forge（1.20.1 舊版旗艦）伺服器端適配 | ✅ 完成（三載入器 CI 建置）|
 | Phase 5 | 客戶端 Mod（選項 A 自動簽名、SSH key 複用，共用 `client-core`）| ✅ 完成（client-fabric/neoforge/forge，CI 建置）|
 | Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（120 單元＋真實 Paper 伺服器＋6 個 mod 建置）|
 

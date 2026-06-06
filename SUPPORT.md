@@ -37,14 +37,15 @@
 
 | 平台 | 目前建置版本 | Java | CI |
 |--|--|--|--|
-| Paper | 1.21.1 | 21 | ✅ 真機伺服器測試（`mc-server-test.yml`）|
-| Fabric | 1.21.1 | 21 | ✅ 建置（`mods.yml`）|
-| NeoForge | 1.21.1 | 21 | ✅ 建置（`mods.yml`）|
-| Forge | **1.20.1（舊版旗艦）** | 17 | ✅ 建置（`mods.yml`）|
+| Paper | 26.1.2 | 25 | ✅ 真機伺服器測試（`mc-server-test.yml`）|
+| Fabric | 26.1 | 25 | ✅ 建置（`mods.yml`）|
+| NeoForge | 26.1.2 | 25 | ✅ 建置（`mods.yml`）|
+| Forge | **1.20.1（舊版旗艦）** | 17 | ✅ 建置（`mods.yml`，獨立 pinned Gradle 8 job）|
 
 落差說明：
-- ✅ Forge 已對齊政策**旗艦頂版 1.20.1**（原 1.19.2 已淘汰）。
-- 現代線（Paper/Fabric/NeoForge）目前鎖 **1.21.1**——政策要求「大版本最新」，旗艦應追**最新 1.21.x**（沙箱無法查詢線上版次，待確認具體版號後 bump 並以 CI 驗證）。
+- ✅ 現代線（Paper/Fabric/NeoForge）已對齊政策**旗艦頂版 26.1**：**Paper 26.1.2** 經 `mc-server-test.yml` **真機伺服器測試**（啟動自檢通過、`authkey enroll` 可用）；**Fabric 26.1**、**NeoForge 26.1.2** 為 CI **建置**驗證（非真機執行）。
+- ✅ Forge 已對齊政策**旗艦頂版 1.20.1**（原 1.19.2 已淘汰），以 **pinned Gradle 8.10.2** 獨立 job 建置（ForgeGradle 6 無法在 Gradle 9 執行）。
+- 無待補落差。
 
 ---
 

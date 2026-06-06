@@ -4,14 +4,15 @@ Minecraft 伺服器「零信任身份驗證」系統。在 Mojang 帳號驗證�
 
 ## 當前狀態
 **Core＋Paper＋Discord＋共用模組＋客戶端核心已實作並測試**；Fabric／NeoForge／Forge 伺服器端適配已實作（CI 建置）。
-- 測試：`:core` 110 + `:platform-common` 3 + `:client-core` 7＝**120 單元測試**（純 Maven Central，本地可跑）；CI 另啟動**真實 Paper 伺服器**執行測試（`mc-server-test.yml`），並建置全部載入器伺服器＋客戶端 jar（`mods.yml`，3 載入器 × 伺服器/客戶端）。
+- 測試：`:core` 110 + `:platform-common` 3 + `:client-core` 7＝**120 單元測試**（Gradle 9 / Java 25 下仍綠，`build.yml`）；CI 另啟動**真實 Paper 伺服器**執行測試（`mc-server-test.yml`，現於 MC 26.1.2，啟動自檢通過＋`authkey enroll` 可用），並建置全部載入器伺服器＋客戶端 jar（`mods.yml`，3 載入器 × 伺服器/客戶端）。
+- **工具鏈**：Gradle **9.4** wrapper；現代線 JDK **25**，核心 toolchain JDK 21（target Java 17 bytecode），Forge JDK 17。Forge 因 ForgeGradle 6 不相容 Gradle 9，於獨立 `mods.yml` job 用 **pinned Gradle 8.10.2**。
 - **平台版本分工（重要）**：同一 Minecraft 版本只用一種載入器，不重複。
-  - **Paper**：1.21.x（Bukkit 系）。
-  - **NeoForge**：現代版（**1.20.1+**，本專案 1.21.1）。
-  - **Fabric**：1.21.1。
-  - **Forge**：**僅舊版**（本專案 1.19.2 / Forge 43.x、Java 17；現代版交給 NeoForge）。
+  - **Paper**：26.1.x（Bukkit 系，本專案 **26.1.2**，真機測試）。
+  - **NeoForge**：現代版（**1.20.1+**，本專案 **26.1.2**，CI 建置）。
+  - **Fabric**：**26.1**（CI 建置）。
+  - **Forge**：**僅舊版**（本專案 1.20.1 / Java 17、pinned Gradle 8；現代版交給 NeoForge）。
 - 已實作模組：`:core`、`:platform-common`（共用 Discord/日誌/YAML）、`:client-core`（選項 A 簽名＋SSH 複用）、`:platform-paper`、`:platform-fabric`、`:platform-neoforge`、`:platform-forge`、`:client-fabric`、`:client-neoforge`、`:client-forge`。選項 A 在三載入器皆端到端串通（伺服器送挑戰 → 客戶端簽名 → 伺服器 `onSignatureResponse`）。
-- 沙箱網路限制：Maven Central／Gradle Portal／GitHub 可達，但 paper-api／Fabric／NeoForge／Forge／Mojang maven 被封鎖 → `:core`/`:platform-common`/`:client-core` 可本地建置測試；各載入器模組僅能在 CI（開放網路）建置（見 `mods.yml`，以 `-PztLoader=<fabric|neoforge|forge>` 條件納入）。
+- 沙箱網路限制：Maven Central／Gradle Portal／GitHub 可達，但 **services.gradle.org（Gradle 9.4 distribution）** 與 paper-api／Fabric／NeoForge／Forge／Mojang maven 皆被封鎖 → 自 Gradle 9.4 wrapper 起沙箱已無法 bootstrap Gradle，本地建置測試不可行（需 CI，或本機自備 Gradle 9.4＋JDK 21/25）；各載入器模組一律在 CI（開放網路）建置（見 `mods.yml`，以 `-PztLoader=<fabric|neoforge|forge>` 條件納入）。
 - 一般玩家零感知；只有管理員帳號登入後被凍結，驗證通過才解鎖權限。
 
 ## 建置 / 測試（實際指令）
