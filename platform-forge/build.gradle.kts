@@ -38,18 +38,28 @@ tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
 
+// ── Forge 多版本（舊版線，分階段逐版推進）──
+// 以 -PforgeMc 選 Minecraft 版本（預設 1.20.1）；mods-forge.yml 以 matrix 對每個版本各跑一次。
+// 現代 Java-17 世代（1.18.2 / 1.19.4 / 1.20.1，ForgeGradle 6/5）共用同一份 adapter 原始碼。
+// 更舊世代（1.16.5↓）API 與工具鏈不同，於後續階段加入；1.7.10 / 1.12.2 規劃改用
+// GTNHGradle / RetroFuturaGradle（以現代 Gradle 建置古老版本）。
+val forgeMc = providers.gradleProperty("forgeMc").orNull ?: "1.20.1"
+val forgeArtifact = when (forgeMc) {
+    "1.20.1" -> "1.20.1-47.3.0"  // 47.x；1.20.1 舊版線旗艦頂版
+    "1.19.4" -> "1.19.4-45.4.0"  // 45.x（recommended）；同 ForgeGradle 6 / Java 17 / 同源碼
+    else -> error("platform-forge: 不支援的 forgeMc=$forgeMc（目前支援：1.20.1、1.19.4）")
+}
+
 minecraft {
-    // Mojang official mappings（1.20.1）。
-    mappings("official", "1.20.1")
+    // Mojang official mappings（依 forgeMc 版本）。
+    mappings("official", forgeMc)
 }
 
 // root 已提供 mavenCentral()；ForgeGradle 會自動加入 Forge（minecraft）製品庫。
 // 此處不重複宣告 repositories，依賴 root + ForgeGradle 自動注入，避免依賴注入時序問題。
 
 dependencies {
-    // Forge 1.20.1 — 47.3.0（47.x 系列，對應 Minecraft 1.20.1；為實際發布的 1.20.1 Forge 版，
-    // 1.20.1 舊版線之旗艦頂版）。
-    minecraft("net.minecraftforge:forge:1.20.1-47.3.0")
+    minecraft("net.minecraftforge:forge:$forgeArtifact")
 
     // 跨平台核心與共用基礎建設（DiscordNotifier / FileLogSink / YamlConfigLoader / YamlKeyRepository）。
     // compile-time 即可編譯；執行期內嵌（JiJ）為後續工作（見檔首）。

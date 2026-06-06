@@ -32,17 +32,23 @@ tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
 
+// Forge 多版本：以 -PforgeMc 選版（預設 1.20.1），與 platform-forge 一致（現代 Java-17 世代共用源碼）。
+val forgeMc = providers.gradleProperty("forgeMc").orNull ?: "1.20.1"
+val forgeArtifact = when (forgeMc) {
+    "1.20.1" -> "1.20.1-47.3.0"
+    "1.19.4" -> "1.19.4-45.4.0"
+    else -> error("client-forge: 不支援的 forgeMc=$forgeMc（目前支援：1.20.1、1.19.4）")
+}
+
 minecraft {
-    // Mojang official mappings（1.20.1），與 platform-forge 一致。
-    mappings("official", "1.20.1")
+    mappings("official", forgeMc)
 }
 
 // root 已提供 mavenCentral()；ForgeGradle 會自動加入 Forge（minecraft）製品庫。
 // 此處不重複宣告 repositories，依賴 root + ForgeGradle 自動注入，避免依賴注入時序問題。
 
 dependencies {
-    // Forge 1.20.1 — 47.3.0（47.x 系列，對應 Minecraft 1.20.1），與 platform-forge 一致。
-    minecraft("net.minecraftforge:forge:1.20.1-47.3.0")
+    minecraft("net.minecraftforge:forge:$forgeArtifact")
 
     // 平台無關的客戶端金鑰 / 簽名邏輯（ClientKeyStore / SignatureResponder）與其依賴的 core。
     // compile-time 即可編譯；執行期內嵌（JiJ）為後續工作（與 platform-* 同一已記錄 follow-up）。
