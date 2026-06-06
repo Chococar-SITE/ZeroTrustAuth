@@ -53,7 +53,7 @@ final class ConnectionListener {
             String connectionId = UUID.randomUUID().toString();
             connectionIds.put(uuid, connectionId);
             // 引擎會凍結、剝奪原版 OP、送出凍結提示並啟動驗證；此處不重複送提示。
-            engine.onAdminJoin(uuid, player.getGameProfile().getName(), connectionId);
+            engine.onAdminJoin(uuid, player.getGameProfile().name(), connectionId);
         });
 
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {

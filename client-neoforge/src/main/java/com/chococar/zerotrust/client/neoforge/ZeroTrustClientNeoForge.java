@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -75,8 +75,8 @@ public final class ZeroTrustClientNeoForge {
     private static final String KEY_FILE_NAME = "client.key";
 
     /** 通道 ID {@code zerotrust:auth}，與 {@code platform-neoforge} 的 {@code AuthChallengePayload} 一致。 */
-    static final ResourceLocation CHANNEL_ID =
-            ResourceLocation.fromNamespaceAndPath("zerotrust", "auth");
+    static final Identifier CHANNEL_ID =
+            Identifier.fromNamespaceAndPath("zerotrust", "auth");
 
     /**
      * 客戶端 payload 型別，鏡像伺服器 {@code AuthChallengePayload}：同一通道、同一

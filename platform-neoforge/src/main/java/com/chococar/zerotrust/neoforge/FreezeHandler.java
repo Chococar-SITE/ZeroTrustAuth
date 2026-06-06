@@ -15,6 +15,7 @@ import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.Objects;
@@ -29,7 +30,7 @@ import java.util.UUID;
  *   <li><b>移動</b>：{@link ServerTickEvent.Post} 每 tick 把位置回拉至凍結點（保留視角）。
  *       NeoForge 伺服器端無乾淨的「玩家移動」事件，故以 tick 回拉為準（文件化做法）。</li>
  *   <li><b>無敵</b>：{@link LivingIncomingDamageEvent} 取消傷害（防死亡 / 掉落）。</li>
- *   <li><b>方塊 / 互動</b>：{@link BlockEvent.BreakEvent}、{@link BlockEvent.EntityPlaceEvent}、
+ *   <li><b>方塊 / 互動</b>：{@link BreakBlockEvent}、{@link BlockEvent.EntityPlaceEvent}、
  *       {@link PlayerInteractEvent} 各子型別取消。</li>
  *   <li><b>聊天</b>：{@link ServerChatEvent} 取消。</li>
  *   <li><b>指令</b>：{@link CommandEvent} 僅放行 {@code /authkey}，其餘取消。</li>
@@ -128,7 +129,7 @@ final class FreezeHandler {
     // ── 方塊 ────────────────────────────────────────────────
 
     @SubscribeEvent
-    public void onBlockBreak(BlockEvent.BreakEvent event) {
+    public void onBlockBreak(BreakBlockEvent event) {
         Player player = event.getPlayer();
         if (player != null && adapter.isFrozen(player.getUUID())) {
             event.setCanceled(true);

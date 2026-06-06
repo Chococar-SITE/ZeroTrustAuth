@@ -11,6 +11,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 
 import java.util.Map;
 import java.util.Objects;
@@ -173,9 +175,15 @@ final class AuthKeyCommand {
 
     // ── 小工具 ───────────────────────────────────────────────
 
-    /** 主控台或高權限（OP level 4）。 */
+    /**
+     * 主控台或高權限（OP level 4 = OWNERS）。
+     *
+     * <p>26.1：整數權限等級已換為 {@code PermissionSet} 系統；原 {@code hasPermission(4)} 等價於
+     * 檢查 {@code Permission.HasCommandLevel(PermissionLevel.OWNERS)}（等級 4 = OWNERS）。
+     */
     private static boolean isConsole(CommandSourceStack src) {
-        return src.getEntity() == null || src.hasPermission(4);
+        return src.getEntity() == null
+                || src.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.OWNERS));
     }
 
     /** 執行時解析引擎；未就緒則回覆失敗並回傳 null（fail-closed）。 */

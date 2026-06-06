@@ -13,6 +13,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 
 import java.util.Map;
 import java.util.Objects;
@@ -169,11 +171,14 @@ final class AuthKeyCommand {
     // ── 小工具 ────────────────────────────────────────────
 
     /**
-     * 主控台或權限等級 4。{@code requires(...)} 在指令樹建構 / 補全時評估，作為第一道閘；
+     * 主控台或權限等級 4（OWNERS）。{@code requires(...)} 在指令樹建構 / 補全時評估，作為第一道閘；
      * 引擎仍以 {@code fromConsole} 對 enroll/revoke 做最終把關（縱深防禦）。
+     *
+     * <p>26.1：整數權限等級已換為 {@code PermissionSet} 系統；原 {@code hasPermission(4)} 等價於
+     * 檢查 {@code Permission.HasCommandLevel(PermissionLevel.OWNERS)}（等級 4 = OWNERS）。
      */
     private static boolean isConsoleOrLevel4(CommandSourceStack src) {
-        return src.hasPermission(4);
+        return src.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.OWNERS));
     }
 
     /** 是否真正來自主控台（非玩家實體即視為主控台 / 命令方塊以外的系統來源）。 */

@@ -7,6 +7,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -39,7 +40,7 @@ import java.util.logging.Logger;
  * 待客戶端 Mod 與權限整合需求明確後再加；不影響本里程碑（編譯 + build 產 jar）。
  *
  * <h2>原版 OP（安全不變式 3）</h2>
- * {@link #stripVanillaOp} 以 {@link PlayerList#deop(GameProfile)} 同步移除 {@code ops.json} 條目，
+ * {@link #stripVanillaOp} 以 {@code PlayerList#deop(NameAndId)} 同步移除 {@code ops.json} 條目，
  * 防止管理員以原版 OP 繞過本系統。{@link #restoreVanillaOp} 預設 no-op（理想：完全不用原版 OP）。
  *
  * <h2>凍結（安全不變式 / 計劃 4.5）</h2>
@@ -179,9 +180,11 @@ final class NeoForgePlatformAdapter implements PlatformAdapter {
             if (profile == null) {
                 return;
             }
+            // 26.1：PlayerList.isOp/deop 改收 NameAndId（id + name），以 GameProfile 包一層即可。
+            NameAndId nameAndId = new NameAndId(profile);
             try {
-                if (list.isOp(profile)) {
-                    list.deop(profile);
+                if (list.isOp(nameAndId)) {
+                    list.deop(nameAndId);
                 }
             } catch (RuntimeException e) {
                 log.warning("剝奪原版 OP 失敗（" + uuid + "）：" + e.getMessage());
@@ -226,12 +229,12 @@ final class NeoForgePlatformAdapter implements PlatformAdapter {
     public Optional<String> getPlayerName(UUID uuid) {
         ServerPlayer p = player(uuid);
         if (p != null) {
-            return Optional.of(p.getGameProfile().getName());
+            return Optional.of(p.getGameProfile().name());
         }
         // 離線：嘗試自玩家檔案快取解析名稱。
         GameProfile profile = resolveProfile(uuid);
-        if (profile != null && profile.getName() != null && !profile.getName().isBlank()) {
-            return Optional.of(profile.getName());
+        if (profile != null && profile.name() != null && !profile.name().isBlank()) {
+            return Optional.of(profile.name());
         }
         return Optional.empty();
     }
@@ -285,11 +288,12 @@ final class NeoForgePlatformAdapter implements PlatformAdapter {
             return online.getGameProfile();
         }
         try {
-            Optional<GameProfile> cached = server.getProfileCache() == null
-                    ? Optional.empty()
-                    : server.getProfileCache().get(uuid);
+            // 26.1：MinecraftServer.getProfileCache() 已移除，改走 services().nameToIdCache()
+            // （回傳 Optional<NameAndId>）；以 id + name 還原為 GameProfile（足供 deop 以 id 比對 ops.json）。
+            Optional<NameAndId> cached = server.services().nameToIdCache().get(uuid);
             if (cached.isPresent()) {
-                return cached.get();
+                NameAndId nameAndId = cached.get();
+                return new GameProfile(nameAndId.id(), nameAndId.name());
             }
         } catch (Throwable t) {
             log.fine("解析 GameProfile 失敗（" + uuid + "），改用僅 UUID profile：" + t.getMessage());

@@ -4,7 +4,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * 選項 A 挑戰封包（計劃 3.1 / 5.2）：伺服器送出 32-byte Nonce 至客戶端 Mod，
@@ -21,8 +21,8 @@ import net.minecraft.resources.ResourceLocation;
 public record AuthChallengePayload(byte[] nonce) implements CustomPacketPayload {
 
     /** 通道 id：{@code zerotrust:auth}。 */
-    public static final ResourceLocation CHANNEL_ID =
-            ResourceLocation.fromNamespaceAndPath("zerotrust", "auth");
+    public static final Identifier CHANNEL_ID =
+            Identifier.fromNamespaceAndPath("zerotrust", "auth");
 
     /** payload 型別句柄（註冊與比對用）。 */
     public static final CustomPacketPayload.Type<AuthChallengePayload> TYPE =

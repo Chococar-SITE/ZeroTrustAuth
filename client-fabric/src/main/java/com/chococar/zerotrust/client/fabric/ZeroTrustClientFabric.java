@@ -19,7 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Path;
@@ -74,8 +74,8 @@ public final class ZeroTrustClientFabric implements ClientModInitializer {
     static final int MAX_PAYLOAD_BYTES = 1024;
 
     /** 通道 ID {@code zerotrust:auth}，與 {@code platform-fabric} 的 {@code AuthPayload.CHANNEL_ID} 一致。 */
-    static final ResourceLocation CHANNEL_ID =
-            ResourceLocation.fromNamespaceAndPath("zerotrust", "auth");
+    static final Identifier CHANNEL_ID =
+            Identifier.fromNamespaceAndPath("zerotrust", "auth");
 
     /**
      * 客戶端 payload 型別，鏡像伺服器 {@code AuthPayload}：同一通道、同一 byte 陣列 codec。

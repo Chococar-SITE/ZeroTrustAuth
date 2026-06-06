@@ -5,7 +5,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * 選項 A 挑戰 / 回應的自訂封包（計劃 5.3：{@code ServerPlayNetworking}）。
@@ -32,8 +32,8 @@ import net.minecraft.resources.ResourceLocation;
 public record AuthPayload(byte[] data) implements CustomPacketPayload {
 
     /** 通道 ID（與 Paper {@code PaperPlatformAdapter.CHANNEL} = {@code zerotrust:auth} 一致）。 */
-    public static final ResourceLocation CHANNEL_ID =
-            ResourceLocation.fromNamespaceAndPath("zerotrust", "auth");
+    public static final Identifier CHANNEL_ID =
+            Identifier.fromNamespaceAndPath("zerotrust", "auth");
 
     /** {@link CustomPacketPayload} 型別識別（Mojang 對應：巢狀型別為 {@code Type}）。 */
     public static final CustomPacketPayload.Type<AuthPayload> TYPE =

@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
@@ -184,10 +185,12 @@ final class FabricPlatformAdapter implements PlatformAdapter {
                 return;
             }
             GameProfile profile = p.getGameProfile();
+            // 26.1：PlayerList.isOp/deop 改收 NameAndId（id + name），以 GameProfile 包一層即可。
+            NameAndId nameAndId = new NameAndId(profile);
             try {
                 // Mojang mappings: PlayerList.isOp / .deop（非 Yarn 的 isOperator/removeFromOperators）。
-                if (server.getPlayerList().isOp(profile)) {
-                    server.getPlayerList().deop(profile);
+                if (server.getPlayerList().isOp(nameAndId)) {
+                    server.getPlayerList().deop(nameAndId);
                 }
             } catch (RuntimeException e) {
                 log.warning("剝奪原版 OP 失敗（" + uuid + "）：" + e.getMessage());
@@ -230,7 +233,7 @@ final class FabricPlatformAdapter implements PlatformAdapter {
     public Optional<String> getPlayerName(UUID uuid) {
         ServerPlayer p = player(uuid);
         if (p != null) {
-            return Optional.ofNullable(p.getGameProfile().getName());
+            return Optional.ofNullable(p.getGameProfile().name());
         }
         return Optional.empty();
     }
