@@ -6,6 +6,11 @@ plugins {
 }
 
 java {
+    // Toolchain 用 JDK 21（Gradle 8/9 皆支援；本地/runner 皆有），release 17 控制輸出位元碼。
+    // 本模組由 Gradle 9（現代線）與 Gradle 8（Forge 舊版線）共同建置（見 root build.gradle.kts）。
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }

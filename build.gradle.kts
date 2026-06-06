@@ -13,10 +13,10 @@ subprojects {
     }
 
     extensions.configure<JavaPluginExtension> {
-        toolchain {
-            // 以 JDK 21 編譯（Paper 1.21 / NeoForge 需要）；各模組以 release 控制目標位元碼。
-            languageVersion.set(JavaLanguageVersion.of(21))
-        }
+        // Toolchain 由各模組自行宣告，root 不再強制單一版本：
+        //   * core / platform-common / client-core → JDK 17（與 Gradle 8 的 Forge 舊版線相容的交集）。
+        //   * 現代載入器（Paper / Fabric / NeoForge @ 26.1）→ JDK 25。
+        // 如此可在同一 repo 內並存「Gradle 9（現代線）」與「Gradle 8（Forge 舊版線）」兩套工具鏈。
         withSourcesJar()
     }
 
