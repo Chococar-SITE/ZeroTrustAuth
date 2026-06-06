@@ -11,7 +11,7 @@
 ![Java](https://img.shields.io/badge/Java-17%2B-orange)
 ![Platforms](https://img.shields.io/badge/平台-Paper%20%7C%20Fabric%20%7C%20NeoForge%20%7C%20Forge-blue)
 
-> **狀態：全平台可建置** — 核心＋Paper＋Discord（Phase 1–3）已測試（**120 項單元測試** ＋ CI 真實 Paper 伺服器執行測試）；Fabric／NeoForge（1.21.1）與 Forge（1.19.2 舊版）的**伺服器端與客戶端 Mod**（Phase 4–5）皆已實作並於 CI 建置。選項 A（Ed25519 簽名）在三種載入器皆端到端串通。
+> **狀態：全平台可建置** — 核心＋Paper＋Discord（Phase 1–3）已測試（**120 項單元測試** ＋ CI 真實 Paper 伺服器執行測試）；Fabric／NeoForge（1.21.1）與 Forge（1.20.1 舊版旗艦）的**伺服器端與客戶端 Mod**（Phase 4–5）皆已實作並於 CI 建置。選項 A（Ed25519 簽名）在三種載入器皆端到端串通。
 
 ## 這是什麼
 
@@ -54,7 +54,7 @@
 
 ## 支援平台
 
-> **版本分工**：Forge 走舊版線（1.7.10→1.20.1，除 1.20.1 外每大版本取最新小版本）；NeoForge 走現代線（1.20.1+，每大版本取最新）；Fabric／Paper 涵蓋 1.20.1→26.1。**完整目標支援矩陣見 [SUPPORT.md](SUPPORT.md)**。
+> **版本分工**：Forge 走舊版線（1.7.10→1.20.1 的 **7 個精選版本**，除 1.20.1 外每受支援大版本取最新小版本；**不含 1.9–1.11、1.13–1.15、1.17**）；NeoForge 走現代線（1.20.1+，每大版本取最新）；Fabric／Paper 涵蓋 1.20.1→26.1。**完整目標支援矩陣見 [SUPPORT.md](SUPPORT.md)**。
 >
 > 下表為**目前已 CI 建置／測試的旗艦子集**（非完整目標範圍）：
 
@@ -106,7 +106,7 @@
 | Phase 1 | Core 模組（挑戰、簽名驗證、Session、PublicKeyStore、Enrollment）| ✅ 完成（110 測試）|
 | Phase 2 | Paper 插件 MVP（凍結、剝奪原版 OP、transient 權限、速率限制）| ✅ 完成（真實伺服器 CI 測試）|
 | Phase 3 | Discord Bot 整合，選項 B 帶外驗證 | ✅ 完成（JDA）|
-| Phase 4 | Fabric / NeoForge（1.21.1）＋ Forge（1.19.2 舊版）伺服器端適配 | ✅ 完成（三載入器 CI 建置）|
+| Phase 4 | Fabric / NeoForge（1.21.1）＋ Forge（1.20.1 舊版旗艦）伺服器端適配 | ✅ 完成（三載入器 CI 建置）|
 | Phase 5 | 客戶端 Mod（選項 A 自動簽名、SSH key 複用，共用 `client-core`）| ✅ 完成（client-fabric/neoforge/forge，CI 建置）|
 | Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（120 單元＋真實 Paper 伺服器＋6 個 mod 建置）|
 
