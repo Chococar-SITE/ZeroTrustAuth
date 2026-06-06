@@ -173,8 +173,11 @@ final class FreezeHandler {
 
     private void cancelInteract(PlayerInteractEvent event, Player player) {
         if (player != null && adapter.isFrozen(player.getUUID())) {
-            // setCanceled(true) 已完整取消該次互動（含開啟容器、使用物品等），足夠構成隔離艙。
-            event.setCanceled(true);
+            // 基底 PlayerInteractEvent 不實作 ICancellableEvent；其可取消子型別才有 setCanceled。
+            // 所有呼叫端傳入的皆為可取消子型別，故透過介面取消（含開啟容器、使用物品等）。
+            if (event instanceof net.neoforged.bus.api.ICancellableEvent cancellable) {
+                cancellable.setCanceled(true);
+            }
             engine.onFrozenPacket(player.getUUID());
         }
     }

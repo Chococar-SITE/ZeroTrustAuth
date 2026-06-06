@@ -185,8 +185,9 @@ final class FabricPlatformAdapter implements PlatformAdapter {
             }
             GameProfile profile = p.getGameProfile();
             try {
-                if (server.getPlayerList().isOperator(profile)) {
-                    server.getPlayerList().removeFromOperators(profile);
+                // Mojang mappings: PlayerList.isOp / .deop（非 Yarn 的 isOperator/removeFromOperators）。
+                if (server.getPlayerList().isOp(profile)) {
+                    server.getPlayerList().deop(profile);
                 }
             } catch (RuntimeException e) {
                 log.warning("剝奪原版 OP 失敗（" + uuid + "）：" + e.getMessage());
