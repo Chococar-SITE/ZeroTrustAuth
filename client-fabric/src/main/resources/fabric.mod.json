@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "zerotrustauth-client",
+  "version": "${version}",
+  "name": "ZeroTrustAuth Client (Option A)",
+  "description": "Client-side companion mod for ZeroTrustAuth (Option A). Runs on the administrator's game client, auto-signs the server's Ed25519 challenge with a locally-stored key (private key never leaves the machine), and prints the uploadable public key via /ztclient pubkey. Never Trust, Always Verify.",
+  "authors": [
+    "Chococar-SITE"
+  ],
+  "license": "ARR",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.chococar.zerotrust.client.fabric.ZeroTrustClientFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
