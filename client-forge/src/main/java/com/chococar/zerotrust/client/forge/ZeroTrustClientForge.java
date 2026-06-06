@@ -16,7 +16,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import java.util.logging.Logger;
 
 /**
- * 選項 A 的 MinecraftForge <b>客戶端</b> Mod 進入點，**LEGACY 版本線**（Minecraft 1.19.2 / Forge 43.x）。
+ * 選項 A 的 MinecraftForge <b>客戶端</b> Mod 進入點，**LEGACY 版本線**（旗艦頂版，Minecraft 1.20.1 / Forge 47.x）。
  *
  * <p>跑在「管理員的遊戲客戶端」：
  * <ol>
@@ -27,8 +27,8 @@ import java.util.logging.Logger;
  *       供玩家於伺服器執行 {@code /authkey upload <pubkey> <code>}。</li>
  * </ol>
  *
- * <h2>事件匯流排（1.19.2 Forge）</h2>
- * 1.19.2 的 Forge 不支援建構子注入 {@link IEventBus}；以<b>無參數建構子</b>啟動，
+ * <h2>事件匯流排（Forge 1.20.1 / 47.x）</h2>
+ * 此 Forge 版本不支援建構子注入 {@link IEventBus}；以<b>無參數建構子</b>啟動，
  * 自 {@link FMLJavaModLoadingContext#getModEventBus()} 取得 mod 匯流排：
  * <ul>
  *   <li><b>Mod 匯流排</b>：{@link FMLClientSetupEvent}（註冊 {@link NonceMsg} SimpleChannel）。</li>
@@ -44,7 +44,7 @@ public final class ZeroTrustClientForge {
     private static final Logger LOG = Logger.getLogger("ZeroTrustAuthClient");
 
     /**
-     * 1.19.2 Forge 以<b>無參數建構子</b>啟動 mod。自 {@link FMLJavaModLoadingContext} 取得 mod 匯流排
+     * Forge 1.20.1 以<b>無參數建構子</b>啟動 mod。自 {@link FMLJavaModLoadingContext} 取得 mod 匯流排
      * 註冊 {@link FMLClientSetupEvent}（網路設定），並於遊戲匯流排註冊本實例的 {@code @SubscribeEvent}。
      */
     public ZeroTrustClientForge() {
@@ -53,7 +53,7 @@ public final class ZeroTrustClientForge {
         modBus.addListener(this::onClientSetup);
         // 遊戲匯流排：客戶端指令註冊（@SubscribeEvent 實例方法）。
         MinecraftForge.EVENT_BUS.register(this);
-        LOG.info("ZeroTrustAuth 客戶端（Forge 1.19.2 / 選項 A）已載入。");
+        LOG.info("ZeroTrustAuth 客戶端（Forge 1.20.1 / 選項 A）已載入。");
     }
 
     // ── Mod 匯流排：客戶端設定（網路註冊）─────────────────────

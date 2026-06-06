@@ -53,8 +53,8 @@ import java.util.logging.Logger;
  *   <li>{@link #onServerStopping} 主動撤回所有權限與凍結（fail-closed，計劃 5.2）。</li>
  * </ul>
  *
- * <h2>事件匯流排（1.19.2 Forge）</h2>
- * 1.19.2 的 Forge <b>不支援</b>建構子注入 {@link IEventBus}（該特性於較新 Forge / NeoForge 才有）。
+ * <h2>事件匯流排（Forge 1.20.1 / 47.x）</h2>
+ * 此 Forge 版本 <b>不支援</b>建構子注入 {@link IEventBus}（該特性於 NeoForge 才有）。
  * 故此處以<b>無參數建構子</b>啟動，並自 {@link FMLJavaModLoadingContext#getModEventBus()} 取得 mod 匯流排：
  * <ul>
  *   <li><b>Mod 匯流排</b>：{@link FMLCommonSetupEvent}（於此註冊選項 A 挑戰的 {@link NonceMsg} SimpleChannel 訊息）。</li>
@@ -80,7 +80,7 @@ public final class ZeroTrustForge {
     private final Map<UUID, String> connectionIds = new ConcurrentHashMap<>();
 
     /**
-     * 1.19.2 Forge 以<b>無參數建構子</b>啟動 mod（不支援建構子注入事件匯流排）。
+     * Forge 1.20.1 以<b>無參數建構子</b>啟動 mod（不支援建構子注入事件匯流排）。
      * 自 {@link FMLJavaModLoadingContext} 取得 mod 匯流排註冊 {@link FMLCommonSetupEvent}（網路設定），
      * 並於遊戲匯流排（{@link MinecraftForge#EVENT_BUS}）註冊本實例的 {@code @SubscribeEvent} 遊戲事件。
      */
@@ -90,14 +90,14 @@ public final class ZeroTrustForge {
         modBus.addListener(this::onCommonSetup);
         // 遊戲匯流排：伺服器生命週期、玩家事件、指令註冊（@SubscribeEvent 實例方法）。
         MinecraftForge.EVENT_BUS.register(this);
-        log.info("ZeroTrustAuth (Forge 1.19.2) 已載入，等待伺服器啟動。");
+        log.info("ZeroTrustAuth (Forge 1.20.1) 已載入，等待伺服器啟動。");
     }
 
     // ── Mod 匯流排：共用設定（網路註冊）─────────────────────
 
     /**
      * {@link FMLCommonSetupEvent}：在 {@link NonceMsg#CHANNEL} 上註冊選項 A 挑戰訊息（{@code zerotrustauth:auth}）。
-     * 1.19.2 無 1.20.5+ 的 {@code RegisterPayloadHandlersEvent} / {@code CustomPacketPayload}；改用 Forge
+     * 1.20.1（&lt; 1.20.5）無 {@code RegisterPayloadHandlersEvent} / {@code CustomPacketPayload}；改用 Forge
      * {@link net.minecraftforge.network.simple.SimpleChannel}（見 {@link NonceMsg}）。本 mod 為伺服器端，
      * 僅<b>送出</b>此 S2C 訊息；client handler 為 no-op（伺服器端永不被呼叫）。
      *

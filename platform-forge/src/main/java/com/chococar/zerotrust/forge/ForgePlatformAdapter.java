@@ -207,7 +207,7 @@ final class ForgePlatformAdapter implements PlatformAdapter {
                 return;
             }
             try {
-                // 1.19.2 以 Forge SimpleChannel 送出（見 NonceMsg）。沒有 1.20.5+ 的
+                // 1.20.1 以 Forge SimpleChannel 送出（見 NonceMsg）。沒有 1.20.5+ 的
                 // PacketDistributor.sendToPlayer(player, payload)；改以
                 // CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), msg)。
                 // 盡力而為：對未安裝客戶端 Mod 者，逾時後走選項 B / 嚴格模式。

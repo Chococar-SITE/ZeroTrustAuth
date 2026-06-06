@@ -12,11 +12,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
- * 選項 A 挑戰封包（計劃 3.1 / 5.2），**Forge 1.19.2 版本**：伺服器送出 32-byte Nonce 至客戶端 Mod，
+ * 選項 A 挑戰封包（計劃 3.1 / 5.2），**Forge 1.20.1 版本**：伺服器送出 32-byte Nonce 至客戶端 Mod，
  * 客戶端加領域前綴（{@code signature_domain + nonce}）後以 Ed25519 簽名回傳。
  *
  * <h2>為何是 SimpleChannel（而非 CustomPacketPayload）</h2>
- * 1.19.2 沒有 1.20.5+ 的原版 {@code CustomPacketPayload} / {@code StreamCodec} /
+ * 1.20.1（&lt; 1.20.5）沒有原版 {@code CustomPacketPayload} / {@code StreamCodec} /
  * {@code RegisterPayloadHandlersEvent} / {@code PacketDistributor.sendToPlayer(player, payload)} API。
  * 舊版 Forge 的網路層為 {@link SimpleChannel}：以 {@link NetworkRegistry#newSimpleChannel} 建立通道，
  * 再以 {@code registerMessage(id, type, encoder, decoder, handler)} 註冊訊息型別，並以
@@ -40,7 +40,7 @@ public final class NonceMsg {
     private static final String PROTOCOL_VERSION = "1";
 
     /**
-     * 通道（建立一次）。1.19.2 以 {@link NetworkRegistry#newSimpleChannel} 建立：
+     * 通道（建立一次）。1.20.1 以 {@link NetworkRegistry#newSimpleChannel} 建立：
      * 名稱、版本供應器、用戶端可接受版本判定、伺服器可接受版本判定。
      */
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(

@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
- * 選項 A 挑戰 / 回應封包的 <b>客戶端</b> 對應（計劃 5.6），**Forge 1.19.2 版本**。
+ * 選項 A 挑戰 / 回應封包的 <b>客戶端</b> 對應（計劃 5.6），**Forge 1.20.1 版本**。
  *
  * <h2>與伺服器 {@code platform-forge} 的 {@code NonceMsg} 完全對齊</h2>
  * 相同通道 {@code zerotrustauth:auth}、相同協定版本 {@code "1"}、相同訊息 discriminator {@code 0}、
