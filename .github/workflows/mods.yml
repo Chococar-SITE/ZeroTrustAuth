@@ -8,9 +8,13 @@ on:
     paths:
       - 'core/**'
       - 'platform-common/**'
+      - 'client-core/**'
       - 'platform-fabric/**'
       - 'platform-neoforge/**'
       - 'platform-forge/**'
+      - 'client-fabric/**'
+      - 'client-neoforge/**'
+      - 'client-forge/**'
       - 'settings.gradle.kts'
       - 'gradle.properties'
       - '.github/workflows/mods.yml'
@@ -29,9 +33,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { loader: fabric, module: platform-fabric, java: '21' }
-          - { loader: neoforge, module: platform-neoforge, java: '21' }
-          - { loader: forge, module: platform-forge, java: '17' }
+          - { loader: fabric, module: platform-fabric, clientModule: client-fabric, java: '21' }
+          - { loader: neoforge, module: platform-neoforge, clientModule: client-neoforge, java: '21' }
+          - { loader: forge, module: platform-forge, clientModule: client-forge, java: '17' }
     steps:
       - uses: actions/checkout@v4
 
@@ -44,13 +48,15 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build ${{ matrix.module }}
-        run: ./gradlew :${{ matrix.module }}:build --no-daemon --stacktrace -PztLoader=${{ matrix.loader }}
+      - name: Build ${{ matrix.module }} + ${{ matrix.clientModule }}
+        run: ./gradlew :${{ matrix.module }}:build :${{ matrix.clientModule }}:build --no-daemon --stacktrace -PztLoader=${{ matrix.loader }}
 
-      - name: Upload mod jar
+      - name: Upload mod jars (server + client)
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: zerotrustauth-${{ matrix.loader }}
-          path: ${{ matrix.module }}/build/libs/*.jar
+          path: |
+            ${{ matrix.module }}/build/libs/*.jar
+            ${{ matrix.clientModule }}/build/libs/*.jar
           if-no-files-found: warn

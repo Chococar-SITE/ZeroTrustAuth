@@ -24,12 +24,12 @@ include("client-core")
 // ── 平台載入器模組：依賴各自 maven（沙箱封鎖），僅在明確建置時納入，
 //    使一般 build 與本地測試不受其重型工具鏈影響。以 -PztLoader=<name> 或 ZT_LOADER 啟用。──
 when (providers.gradleProperty("ztLoader").orNull ?: System.getenv("ZT_LOADER")) {
-    "fabric" -> include("platform-fabric")
-    "neoforge" -> include("platform-neoforge")
-    "forge" -> include("platform-forge")
+    "fabric" -> { include("platform-fabric"); include("client-fabric") }
+    "neoforge" -> { include("platform-neoforge"); include("client-neoforge") }
+    "forge" -> { include("platform-forge"); include("client-forge") }
     "all" -> {
-        include("platform-fabric")
-        include("platform-neoforge")
-        include("platform-forge")
+        include("platform-fabric"); include("client-fabric")
+        include("platform-neoforge"); include("client-neoforge")
+        include("platform-forge"); include("client-forge")
     }
 }

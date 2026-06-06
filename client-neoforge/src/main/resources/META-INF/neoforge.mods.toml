@@ -1,0 +1,45 @@
+# ZeroTrustAuth Client (Option A) — NeoForge mod 中繼資料（Minecraft 1.21.1 使用 neoforge.mods.toml）。
+#
+# 客戶端 mod：跑在管理員的遊戲客戶端，自動簽署伺服器的 Ed25519 挑戰並印出可上傳的公鑰。
+#
+# ⚠️ 此檔不含任何秘密。私鑰永不離開本機；網路只傳簽名與（自願）公鑰。
+
+# javafml 為 NeoForge 的 Java mod 載入器；loaderVersion 對應 NeoForge 21.1.x 的 FML 版本範圍。
+modLoader = "javafml"
+loaderVersion = "[4,)"
+
+# 授權（佔位；實際以 repo 根目錄 LICENSE 為準）。
+license = "All Rights Reserved"
+
+# 問題回報走 SECURITY.md 私密管道，勿開公開 issue（見 CLAUDE.md）。
+issueTrackerURL = "https://github.com/Chococar-SITE/ZeroTrustAuth/issues"
+
+[[mods]]
+modId = "zerotrustauthclient"
+# 版本固定字面值，避免佔位符插值在不同 ModDevGradle 版本下行為不一致而導致建置失敗。
+version = "0.1.0"
+displayName = "ZeroTrustAuth Client (Option A)"
+# 客戶端 mod：自動回應伺服器選項 A 挑戰（Ed25519 簽名），並提供 /ztclient pubkey 印出公鑰。
+description = '''
+Client-side companion mod for ZeroTrustAuth (Option A). Runs on the administrator's game client,
+auto-signs the server's Ed25519 challenge with a locally-stored key (private key never leaves the
+machine), and prints the uploadable public key via /ztclient pubkey. Never Trust, Always Verify.
+'''
+authors = "Chococar-SITE"
+
+# ── 依賴宣告 ───────────────────────────────────────────────
+# NeoForge 本體：限定 21.1.x（對應 Minecraft 1.21.1）。客戶端側。
+[[dependencies.zerotrustauthclient]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,21.2)"
+ordering = "NONE"
+side = "CLIENT"
+
+# Minecraft：限定 1.21.1。客戶端側。
+[[dependencies.zerotrustauthclient]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "CLIENT"
