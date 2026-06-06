@@ -1,0 +1,44 @@
+name: Discover Versions
+
+# 查詢指定 Minecraft 版本在各平台的可用相依版本（CI 開放網路；沙箱無法直接查）。
+# 用於把現代線（Paper/Fabric/NeoForge）對齊到新版時，取得精確的相依座標。
+on:
+  workflow_dispatch:
+    inputs:
+      mc:
+        description: "Minecraft version to look up (e.g. 26.1)"
+        required: true
+        default: "26.1"
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: Discover artifact versions for ${{ inputs.mc }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Look up
+        run: |
+          set +e
+          MC="${{ inputs.mc }}"
+          echo "############ Minecraft target: $MC ############"
+
+          echo "===== PaperMC ====="
+          curl -fsSL "https://api.papermc.io/v2/projects/paper" | jq -r '.versions[]' | grep -F "$MC" || echo "  ($MC NOT in Paper version list)"
+          curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/$MC" | jq -r '"  builds: first=\(.builds[0])  last=\(.builds[-1])"' || echo "  (no Paper builds for $MC)"
+          echo "  paper-api coordinate guess: io.papermc.paper:paper-api:$MC-R0.1-SNAPSHOT"
+
+          echo "===== Fabric ====="
+          curl -fsSL "https://meta.fabricmc.net/v2/versions/game" | jq -r '.[].version' | grep -Fx "$MC" && echo "  ($MC IS a Fabric game version)" || echo "  ($MC NOT in Fabric game list)"
+          echo "  latest loader:"; curl -fsSL "https://meta.fabricmc.net/v2/versions/loader" | jq -r '.[0].version' | sed 's/^/    /'
+          echo "  fabric-api for $MC (Modrinth):"; curl -fsSL "https://api.modrinth.com/v2/project/fabric-api/version?game_versions=%5B%22$MC%22%5D" | jq -r '.[0].version_number // "    (none)"' | sed 's/^/    /'
+          echo "  latest fabric-loom:"; curl -fsSL "https://plugins.gradle.org/m2/fabric-loom/fabric-loom.gradle.plugin/maven-metadata.xml" | grep -oE '<release>[^<]+|<latest>[^<]+' | sed 's/^/    /'
+
+          echo "===== NeoForge ====="
+          echo "  versions containing '${MC#1.}' (last 15):"
+          curl -fsSL "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge" | jq -r '.versions[]' | grep -F "${MC#1.}" | tail -15 | sed 's/^/    /' || echo "    (none)"
+          echo "  newest 8 NeoForge versions overall (numbering scheme):"
+          curl -fsSL "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge" | jq -r '.versions[]' | tail -8 | sed 's/^/    /'
+
+          echo "############ done ############"
