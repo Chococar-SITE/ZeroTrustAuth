@@ -184,9 +184,10 @@ final class AuthKeyCommand {
     /** 將 {@link CommandResult} 回饋至來源，並回傳 Brigadier 結果碼（成功 1 / 失敗 0）。 */
     private static int reply(CommandSourceStack src, CommandResult result) {
         if (result.success()) {
-            // 不廣播給其他管理員（第二參數 false）。
-            // 1.20.1：sendSuccess 取 Supplier<Component>（1.19.4+ 起的形式；裸 Component 多載已移除）。
-            src.sendSuccess(() -> Component.literal(result.message()), false);
+            // 不廣播給其他管理員（第二參數 false，由 CommandFeedback 固定）。
+            // sendSuccess 簽名隨 MC 版本而異（1.20+ 取 Supplier<Component>，≤1.19 取裸 Component）；
+            // 交由 CommandFeedback 的紀元版本（src/feedback-{supplier,component}）吸收差異，呼叫端保持版本無關。
+            CommandFeedback.success(src, Component.literal(result.message()));
             return 1;
         } else {
             src.sendFailure(Component.literal(result.message()));

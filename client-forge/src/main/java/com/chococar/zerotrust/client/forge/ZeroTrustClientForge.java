@@ -85,10 +85,11 @@ public final class ZeroTrustClientForge {
     private static void printPubKey(CommandSourceStack source) {
         try {
             String pub = NonceMsg.publicKeyBase64();
-            // 1.20.1：sendSuccess 取 Supplier<Component>（1.19.4+ 起的形式；裸 Component 多載已移除）。
-            source.sendSuccess(() -> Component.literal(
-                    "§a[ZeroTrustAuth] 你的公鑰（在伺服器執行 /authkey upload <pubkey> <code>）："), false);
-            source.sendSuccess(() -> Component.literal("§f" + pub), false);
+            // sendSuccess 簽名隨 MC 版本而異（1.20+ 取 Supplier<Component>，≤1.19 取裸 Component）；
+            // 交由 CommandFeedback 的紀元版本（src/feedback-{supplier,component}）吸收差異，呼叫端保持版本無關。
+            CommandFeedback.success(source, Component.literal(
+                    "§a[ZeroTrustAuth] 你的公鑰（在伺服器執行 /authkey upload <pubkey> <code>）："));
+            CommandFeedback.success(source, Component.literal("§f" + pub));
         } catch (Throwable t) {
             LOG.warning("ZeroTrustAuth 取得公鑰失敗：" + t);
             source.sendFailure(Component.literal("§c[ZeroTrustAuth] 無法讀取 / 產生金鑰：" + t.getMessage()));
