@@ -54,14 +54,16 @@
 
 ## 支援平台
 
-> **版本分工**：同一 Minecraft 版本只用一種載入器，不重複。**現代版（1.20.1+）用 NeoForge**，**Forge 僅保留給舊版**。
+> **版本分工**：Forge 走舊版線（1.7.10→1.20.1，除 1.20.1 外每大版本取最新小版本）；NeoForge 走現代線（1.20.1+，每大版本取最新）；Fabric／Paper 涵蓋 1.20.1→26.1。**完整目標支援矩陣見 [SUPPORT.md](SUPPORT.md)**。
+>
+> 下表為**目前已 CI 建置／測試的旗艦子集**（非完整目標範圍）：
 
-| 平台 | Minecraft | 權限機制 | 狀態 |
+| 平台 | 目前建置版本 | 權限機制 | 狀態 |
 |--|--|--|--|
-| Paper / Spigot | 1.21.x | LuckPerms transient（無則 Bukkit attachment）| ✅ 真實伺服器 CI 測試 |
+| Paper / Spigot | 1.21.1 | LuckPerms transient（無則 Bukkit attachment）| ✅ 真實伺服器 CI 測試 |
 | Fabric | 1.21.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
-| NeoForge | 1.21.1（現代 1.20.1+）| 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
-| Forge | **1.19.2（舊版）** | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
+| NeoForge | 1.21.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
+| Forge | 1.19.2（舊版示範）| 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
 
 各平台皆實作同一 `PlatformAdapter`，凍結一律在最早 hook 套用（移動/背包/容器/方塊/聊天/無敵，僅放行 `/authkey`）。客戶端 Mod（選項 A 自動簽名）共用 `client-core`（Ed25519＋SSH key 複用）。
 
