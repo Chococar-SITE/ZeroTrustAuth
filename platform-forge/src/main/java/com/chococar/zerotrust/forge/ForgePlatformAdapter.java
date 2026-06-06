@@ -248,7 +248,9 @@ final class ForgePlatformAdapter implements PlatformAdapter {
             return Optional.empty();
         }
         try {
-            SocketAddress addr = p.connection.getConnection().getRemoteAddress();
+            // 1.20.1：ServerGamePacketListenerImpl 直接以 public 欄位 connection 持有 Connection
+            //（無 getConnection() 多載）。
+            SocketAddress addr = p.connection.connection.getRemoteAddress();
             if (addr instanceof java.net.InetSocketAddress isa && isa.getAddress() != null) {
                 // 僅回傳 IP 字串；雜湊由核心 AuditLog 以 HMAC-SHA256＋密鑰鹽處理（計劃 6.2）。
                 return Optional.of(isa.getAddress().getHostAddress());
