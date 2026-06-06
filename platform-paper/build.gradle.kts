@@ -8,16 +8,21 @@ plugins {
 }
 
 java {
-    // Paper 26.1 的 API 以 Java 25 編譯；外掛須以 JDK 25 toolchain 編譯並執行於 Java 25。
+    // 以 JDK 25 toolchain 編譯：Paper 26.1 的 API 為 Java 25（class major 69）位元碼，
+    // 需 JDK 25 的 javac 方能讀取其 class。
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
     }
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    // 但本外掛**輸出 Java 21（major 65）位元碼**（見下方 release 21）。原因：Shadow 8.3.5 內嵌的
+    // ASM 無法解析 major 69 類別（shadowJar 會丟 "Unsupported class file major version 69"）。
+    // Java 25 的 Paper 伺服器可正常載入 Java 21 位元碼，功能完全相同；如此既對齊 Paper 26.1，
+    // 又毋須冒險升級 Shadow 9.x（本專案僅 platform-paper 使用 shadow）。
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(25)
+    options.release.set(21)
 }
 
 repositories {
