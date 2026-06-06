@@ -4,6 +4,7 @@ import com.chococar.zerotrust.auth.Ed25519Verifier;
 
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.util.Base64;
 import java.util.Objects;
 
 /**
@@ -27,6 +28,11 @@ public final class ClientIdentity {
     /** 可上傳至伺服器的公鑰（Base64 X.509/SPKI）。 */
     public String publicKeyBase64() {
         return publicKeyBase64;
+    }
+
+    /** 私鑰的 PKCS#8 編碼（Base64）——僅供本機持久化，<b>絕不</b>傳輸或上傳。 */
+    public String privateKeyPkcs8Base64() {
+        return Base64.getEncoder().encodeToString(privateKey.getEncoded());
     }
 
     /** 對挑戰 Nonce 加領域前綴後簽名，回傳 Ed25519 簽名。 */

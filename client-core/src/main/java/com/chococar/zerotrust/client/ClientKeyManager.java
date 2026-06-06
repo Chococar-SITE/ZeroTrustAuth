@@ -7,8 +7,10 @@ import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
 import java.security.spec.EdECPrivateKeySpec;
 import java.security.spec.NamedParameterSpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 /**
@@ -69,6 +71,17 @@ public final class ClientKeyManager {
             return new ClientIdentity(privateKey, pubB64);
         } catch (Exception e) {
             throw new IllegalArgumentException("OpenSSH Ed25519 轉換失敗：" + e.getMessage(), e);
+        }
+    }
+
+    /** 從本機持久化的 PKCS#8 私鑰（Base64）＋公鑰（Base64）重建身份（見 {@link ClientKeyStore}）。 */
+    public static ClientIdentity fromStored(String publicKeyBase64, String privateKeyPkcs8Base64) {
+        try {
+            byte[] der = Base64.getDecoder().decode(privateKeyPkcs8Base64);
+            PrivateKey priv = KeyFactory.getInstance("Ed25519").generatePrivate(new PKCS8EncodedKeySpec(der));
+            return new ClientIdentity(priv, publicKeyBase64);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("無法重建已儲存的金鑰：" + e.getMessage(), e);
         }
     }
 
