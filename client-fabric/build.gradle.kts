@@ -33,10 +33,10 @@ repositories {
     maven("https://maven.fabricmc.net/") { name = "Fabric" }
 }
 
-// Fabric 相關版本（對應 Minecraft 26.1），與 platform-fabric 一致。
-val fabricMinecraftVersion = "26.1"
+// Fabric 相關版本（對應 Minecraft 26.1.2），與 platform-fabric 一致。
+val fabricMinecraftVersion = "26.1.2"
 val fabricLoaderVersion = "0.19.2"
-val fabricApiVersion = "0.145.1+26.1"
+val fabricApiVersion = "0.149.1+26.1.2"
 
 dependencies {
     // Minecraft 本體（Loom no-remap 以官方對應提供；毋須 mappings 宣告）。

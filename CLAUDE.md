@@ -9,7 +9,7 @@ Minecraft 伺服器「零信任身份驗證」系統。在 Mojang 帳號驗證�
 - **平台版本分工（重要）**：同一 Minecraft 版本只用一種載入器，不重複。
   - **Paper**：26.1.x（Bukkit 系，本專案 **26.1.2**，真機測試）。
   - **NeoForge**：現代版（**1.20.1+**，本專案 **26.1.2**，CI 建置）。
-  - **Fabric**：**26.1**（CI 建置）。
+  - **Fabric**：**26.1.2**（CI 建置）。
   - **Forge**：**僅舊版**（本專案 1.20.1 / Java 17、pinned Gradle 8；現代版交給 NeoForge）。
 - 已實作模組：`:core`、`:platform-common`（共用 Discord/日誌/YAML）、`:client-core`（選項 A 簽名＋SSH 複用）、`:platform-paper`、`:platform-fabric`、`:platform-neoforge`、`:platform-forge`、`:client-fabric`、`:client-neoforge`、`:client-forge`。選項 A 在三載入器皆端到端串通（伺服器送挑戰 → 客戶端簽名 → 伺服器 `onSignatureResponse`）。
 - 沙箱網路限制：Maven Central／Gradle Portal／GitHub 可達，但 **services.gradle.org（Gradle 9.4 distribution）** 與 paper-api／Fabric／NeoForge／Forge／Mojang maven 皆被封鎖 → 自 Gradle 9.4 wrapper 起沙箱已無法 bootstrap Gradle，本地建置測試不可行（需 CI，或本機自備 Gradle 9.4＋JDK 21/25）；各載入器模組一律在 CI（開放網路）建置（見 `mods.yml`，以 `-PztLoader=<fabric|neoforge|forge>` 條件納入）。

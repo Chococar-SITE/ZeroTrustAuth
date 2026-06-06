@@ -32,12 +32,12 @@ repositories {
     maven("https://maven.fabricmc.net/") { name = "Fabric" }
 }
 
-// Fabric 相關版本（對應 Minecraft 26.1）。MC 用 "26.1"（與 fabric-api 的 +26.1 後綴一致；
-// Paper / NeoForge 用 26.1.2）。loom 1.15 no-remap：官方對應原生，故不宣告 mappings，
-// 且依賴用 implementation（非 modImplementation）——對齊 Fabric 官方 26.1 範本。
-val fabricMinecraftVersion = "26.1"
+// Fabric 相關版本（對應 Minecraft 26.1.2，與 Paper / NeoForge 一致）。loom no-remap：官方對應原生，
+// 故不宣告 mappings，且依賴用 implementation（非 modImplementation）——對齊 Fabric 官方 26.1 範本。
+// fabric-api 後綴須與 minecraft 版本一致（+26.1.2）；取 Modrinth 上對應 26.1.2 的釋出版。
+val fabricMinecraftVersion = "26.1.2"
 val fabricLoaderVersion = "0.19.2"
-val fabricApiVersion = "0.145.1+26.1"
+val fabricApiVersion = "0.149.1+26.1.2"
 
 dependencies {
     // Minecraft 本體（Loom no-remap 以官方對應提供；毋須 mappings 宣告）。
