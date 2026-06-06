@@ -35,10 +35,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
- * ZeroTrustAuth 的 MinecraftForge（伺服器端）進入點，**LEGACY 版本線**（Minecraft 1.19.2 / Forge 43.x）。
+ * ZeroTrustAuth 的 MinecraftForge（伺服器端）進入點，**LEGACY 版本線**（旗艦頂版，Minecraft 1.20.1 / Forge 47.x）。
  *
- * <p>本專案分工：NeoForge 負責現代 Minecraft（1.20.1+），Forge 僅保留給<b>舊版</b>。故此模組目標
- * 為 1.19.2；NeoForge 的對等實作（{@code ZeroTrustNeoForge}）保持現代 API，不在此處更動。
+ * <p>本專案分工：NeoForge 負責現代 Minecraft（1.20.1+），Forge 負責<b>舊版線</b>，其頂版為 1.20.1
+ *（Forge 涵蓋至 1.20.1，NeoForge 自 1.20.1+ 起）。故此模組目標為 1.20.1；NeoForge 的對等實作
+ *（{@code ZeroTrustNeoForge}）保持現代 API，不在此處更動。
  *
  * <p>接線方式與 Paper（{@code ZeroTrustPlugin}）/ NeoForge / Fabric 一致：於伺服器啟動時蒐集所有依賴
  * （adapter / scheduler / notifier=共用 {@code DiscordNotifier} / logSink=共用 {@code FileLogSink} /

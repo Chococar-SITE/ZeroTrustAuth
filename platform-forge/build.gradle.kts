@@ -1,7 +1,8 @@
-// platform-forge — MinecraftForge（伺服器端）平台適配，**LEGACY** 版本線。
+// platform-forge — MinecraftForge（伺服器端）平台適配，**LEGACY** 版本線（旗艦頂版）。
 //
-// 本專案分工：NeoForge 負責現代 Minecraft（1.20.1+），Forge 僅保留給**舊版**。
-// 故本模組目標為 **Minecraft 1.19.2 / Java 17 / MinecraftForge 43.x**，使用 ForgeGradle 6
+// 本專案分工：NeoForge 負責現代 Minecraft（1.20.1+），Forge 負責**舊版線**，其**頂版**為 1.20.1
+//（即 Forge 舊版線與 NeoForge 現代線在 1.20.1 交會：Forge 涵蓋至 1.20.1，NeoForge 自 1.20.1+ 起）。
+// 故本模組目標為 **Minecraft 1.20.1 / Java 17 / MinecraftForge 47.x**，使用 ForgeGradle 6
 // （net.minecraftforge.gradle，[6.0,6.2)，由 settings.gradle.kts pluginManagement 指定）。
 // Forge / Mojang maven 在本沙箱被封鎖，故僅能於 CI（開放網路）建置；驗收標準為
 // `:platform-forge:build` 產出 mod jar。
@@ -17,12 +18,12 @@
 plugins {
     `java-library`
     // 版本由 settings.gradle.kts 的 pluginManagement 指定（6.0.+ → 落在 [6.0,6.2)）。
-    // 1.19.2 的 Forge MDK 使用 ForgeGradle [6.0,6.2)，與本專案 pluginManagement 一致。
+    // 1.20.1 的 Forge MDK 使用 ForgeGradle [6.0,6.2)，與本專案 pluginManagement 一致。
     id("net.minecraftforge.gradle")
 }
 
-// 1.19.2 需 Java 17。root 的 subprojects 區塊把 toolchain 設為 21（供現代模組）；
-// 本舊版模組於此**覆寫**為 Java 17，使 ForgeGradle 以 JDK 17 反編譯 / 編譯 Minecraft 1.19.2。
+// 1.20.1 需 Java 17。root 的 subprojects 區塊把 toolchain 設為 21（供現代模組）；
+// 本舊版模組於此**覆寫**為 Java 17，使 ForgeGradle 以 JDK 17 反編譯 / 編譯 Minecraft 1.20.1。
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
@@ -32,22 +33,23 @@ java {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    // 目標位元碼 Java 17（1.19.2 執行於 Java 17）。
+    // 目標位元碼 Java 17（1.20.1 執行於 Java 17）。
     options.release.set(17)
     options.encoding = "UTF-8"
 }
 
 minecraft {
-    // Mojang official mappings（1.19.2）。
-    mappings("official", "1.19.2")
+    // Mojang official mappings（1.20.1）。
+    mappings("official", "1.20.1")
 }
 
 // root 已提供 mavenCentral()；ForgeGradle 會自動加入 Forge（minecraft）製品庫。
 // 此處不重複宣告 repositories，依賴 root + ForgeGradle 自動注入，避免依賴注入時序問題。
 
 dependencies {
-    // Forge 1.19.2 — 43.5.0（43.x 系列，對應 Minecraft 1.19.2；為實際發布的 1.19.2 Forge 版）。
-    minecraft("net.minecraftforge:forge:1.19.2-43.5.0")
+    // Forge 1.20.1 — 47.3.0（47.x 系列，對應 Minecraft 1.20.1；為實際發布的 1.20.1 Forge 版，
+    // 1.20.1 舊版線之旗艦頂版）。
+    minecraft("net.minecraftforge:forge:1.20.1-47.3.0")
 
     // 跨平台核心與共用基礎建設（DiscordNotifier / FileLogSink / YamlConfigLoader / YamlKeyRepository）。
     // compile-time 即可編譯；執行期內嵌（JiJ）為後續工作（見檔首）。

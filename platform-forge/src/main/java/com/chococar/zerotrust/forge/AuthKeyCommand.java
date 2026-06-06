@@ -185,8 +185,8 @@ final class AuthKeyCommand {
     private static int reply(CommandSourceStack src, CommandResult result) {
         if (result.success()) {
             // 不廣播給其他管理員（第二參數 false）。
-            // 1.19.2：sendSuccess 接受 Component（Supplier<Component> 多載為 1.19.4+）。
-            src.sendSuccess(Component.literal(result.message()), false);
+            // 1.20.1：sendSuccess 取 Supplier<Component>（1.19.4+ 起的形式；裸 Component 多載已移除）。
+            src.sendSuccess(() -> Component.literal(result.message()), false);
             return 1;
         } else {
             src.sendFailure(Component.literal(result.message()));

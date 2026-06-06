@@ -1,15 +1,15 @@
-# ZeroTrustAuth Client (Option A) — MinecraftForge mod 中繼資料，**LEGACY 版本線**（Minecraft 1.19.2 / Forge 43.x）。
+# ZeroTrustAuth Client (Option A) — MinecraftForge mod 中繼資料，**LEGACY 版本線**（旗艦頂版，Minecraft 1.20.1 / Forge 47.x）。
 #
 # ⚠️ 此檔為 Forge 專屬的 META-INF/mods.toml（非 NeoForge 的 META-INF/neoforge.mods.toml）。
-#     1.19.2 的 Forge（43.x）使用傳統 mods.toml 檔名與結構。
+#     1.20.1 的 Forge（47.x）仍使用傳統 mods.toml 檔名與結構（neoforge.mods.toml 為 NeoForge 專屬）。
 #
 # 客戶端 mod：跑在管理員的遊戲客戶端，自動簽署伺服器的 Ed25519 挑戰並印出可上傳的公鑰。
 #
 # ⚠️ 此檔不含任何秘密。私鑰永不離開本機；網路只傳簽名與（自願）公鑰。
 
-# javafml 為 Forge 的 Java mod 載入器；loaderVersion 對應 Forge 43.x（1.19.2）的 FML 版本範圍。
+# javafml 為 Forge 的 Java mod 載入器；loaderVersion 對應 Forge 47.x（1.20.1）的 FML 版本範圍。
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[47,)"
 
 # 授權（佔位；實際以 repo 根目錄 LICENSE 為準）。
 license = "All Rights Reserved"
@@ -34,18 +34,18 @@ authors = "Chococar-SITE"
 displayTest = "IGNORE_SERVER_VERSION"
 
 # ── 依賴宣告 ───────────────────────────────────────────────
-# Forge 本體：限定 43.x（對應 Minecraft 1.19.2）。客戶端側。
+# Forge 本體：限定 47.x（對應 Minecraft 1.20.1）。客戶端側。
 [[dependencies.zerotrustauthclient]]
 modId = "forge"
 type = "required"
-versionRange = "[43,)"
+versionRange = "[47,)"
 ordering = "NONE"
 side = "CLIENT"
 
-# Minecraft：限定 1.19.2（含）至 1.20（不含）。客戶端側。
+# Minecraft：限定 1.20.1（含）至 1.20.2（不含）。客戶端側。
 [[dependencies.zerotrustauthclient]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.19.2,1.20)"
+versionRange = "[1.20.1,1.20.2)"
 ordering = "NONE"
 side = "CLIENT"
