@@ -53,14 +53,16 @@
 
 ## 支援平台
 
-| 平台 | 權限機制 | 凍結方式 |
-|--|--|--|
-| Paper / Spigot | LuckPerms API（transient）| `PlayerMoveEvent` 取消 |
-| Fabric | fabric-permissions-api | `ServerTickEvents` 位置重設 |
-| Forge | ForgeHooks / Capability | `PlayerEvent` 攔截 |
-| NeoForge | IPermissionHandler | `PlayerEvent` 攔截 |
+> **版本分工**：同一 Minecraft 版本只用一種載入器，不重複。**現代版（1.20.1+）用 NeoForge**，**Forge 僅保留給舊版**。
 
-客戶端 Mod 以 Architectury 跨 Fabric／Forge／NeoForge 共用核心邏輯。
+| 平台 | Minecraft | 權限機制 | 狀態 |
+|--|--|--|--|
+| Paper / Spigot | 1.21.x | LuckPerms transient（無則 Bukkit attachment）| ✅ 真實伺服器 CI 測試 |
+| Fabric | 1.21.1 | 記憶體 transient 授權 | ✅ CI 建置 |
+| NeoForge | 1.21.1（現代 1.20.1+）| 記憶體 transient 授權 | ✅ CI 建置 |
+| Forge | **1.19.2（舊版）** | 記憶體 transient 授權 | 🔧 CI 建置中 |
+
+各平台皆實作同一 `PlatformAdapter`，凍結一律在最早 hook 套用（移動/背包/容器/方塊/聊天/無敵，僅放行 `/authkey`）。客戶端 Mod（選項 A 自動簽名）共用 `client-core`（Ed25519＋SSH key 複用）。
 
 ## 建置與測試
 
@@ -101,8 +103,8 @@
 | Phase 1 | Core 模組（挑戰、簽名驗證、Session、PublicKeyStore、Enrollment）| ✅ 完成（110 測試）|
 | Phase 2 | Paper 插件 MVP（凍結、剝奪原版 OP、transient 權限、速率限制）| ✅ 完成（真實伺服器 CI 測試）|
 | Phase 3 | Discord Bot 整合，選項 B 帶外驗證 | ✅ 完成（JDA）|
-| Phase 4 | Fabric / Forge / NeoForge 伺服器端適配 | ⏳ 規劃中 |
-| Phase 5 | 客戶端 Mod（Architectury），選項 A 自動簽名、SSH key 複用 | ⏳ 規劃中 |
+| Phase 4 | Fabric / NeoForge（1.21.1）＋ Forge（1.19.2 舊版）伺服器端適配 | 🔧 Fabric/NeoForge ✅ CI、Forge 建置中 |
+| Phase 5 | 客戶端 Mod（選項 A 自動簽名、SSH key 複用，共用 `client-core`）| 🔧 `client-core` ✅（5 測試），各載入器封裝進行中 |
 | Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（單元＋伺服器測試已就緒）|
 
 ## 貢獻

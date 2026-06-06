@@ -3,13 +3,19 @@
 Minecraft 伺服器「零信任身份驗證」系統。在 Mojang 帳號驗證之上，為**管理員**加一道**裝置層**驗證。核心：**Never Trust, Always Verify**。完整設計見 `docs/ZeroTrust_2FA_Plan.md`（本檔為精簡工作參考，細節再查原文）。
 
 ## 當前狀態
-**Core（Phase 1）＋ Paper 外掛（Phase 2）＋ Discord 選項 B（Phase 3）已實作並測試**：`:core` 110 項單元測試（純 JDK，本地可跑）＋ CI 啟動**真實 Paper 伺服器**的執行測試（`.github/workflows/mc-server-test.yml`）。Fabric／Forge／NeoForge 與客戶端 Mod 尚未實作（Phase 4–5）。
-- 已實作模組：`:core`（`ZeroTrustCore` 等）、`:platform-paper`（`ZeroTrustPlugin` 等）。
-- 沙箱網路限制：Maven Central／Gradle Portal 可達，但 paper-api／Fabric／Forge／NeoForge／Mojang maven 被封鎖 → `:core` 可本地建置測試，`:platform-paper` 僅能在 CI（開放網路）建置。
+**Core＋Paper＋Discord＋共用模組＋客戶端核心已實作並測試**；Fabric／NeoForge／Forge 伺服器端適配已實作（CI 建置）。
+- 測試：`:core` 110 + `:platform-common` 3 + `:client-core` 5＝**118 單元測試**（純 Maven Central，本地可跑）；CI 另啟動**真實 Paper 伺服器**執行測試（`mc-server-test.yml`）。
+- **平台版本分工（重要）**：同一 Minecraft 版本只用一種載入器，不重複。
+  - **Paper**：1.21.x（Bukkit 系）。
+  - **NeoForge**：現代版（**1.20.1+**，本專案 1.21.1）。
+  - **Fabric**：1.21.1。
+  - **Forge**：**僅舊版**（本專案 1.19.2 / Forge 43.x、Java 17；現代版交給 NeoForge）。
+- 已實作模組：`:core`、`:platform-common`（共用 Discord/日誌/YAML）、`:client-core`（選項 A 簽名＋SSH 複用）、`:platform-paper`、`:platform-fabric`、`:platform-neoforge`、`:platform-forge`。客戶端 Mod（client-fabric/neoforge/forge）為進行中（Phase 5）。
+- 沙箱網路限制：Maven Central／Gradle Portal／GitHub 可達，但 paper-api／Fabric／NeoForge／Forge／Mojang maven 被封鎖 → `:core`/`:platform-common`/`:client-core` 可本地建置測試；各載入器模組僅能在 CI（開放網路）建置（見 `mods.yml`，以 `-PztLoader=<fabric|neoforge|forge>` 條件納入）。
 - 一般玩家零感知；只有管理員帳號登入後被凍結，驗證通過才解鎖權限。
 
 ## 建置 / 測試（實際指令）
-`./gradlew :core:test`（核心 110 測試，本地）· `./gradlew :platform-paper:shadowJar`（外掛 jar，CI）· `./gradlew build`（全建置＋測試）· `ci/mc-server-test.sh`（真實 Paper 伺服器執行測試，需連網）。
+`./gradlew :core:test`（核心 110 測試，本地）· `./gradlew :platform-common:test :client-core:test`（共 8 測試，本地）· `./gradlew :platform-paper:shadowJar`（外掛 jar，CI）· `./gradlew build`（JVM 模組全建置＋測試，不含載入器）· `./gradlew :platform-fabric:build -PztLoader=fabric`（載入器，CI）· `ci/mc-server-test.sh`（真實 Paper 伺服器執行測試，需連網）。
 
 ## 技術棧
 | 項目 | 版本 |
