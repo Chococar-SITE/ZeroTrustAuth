@@ -50,7 +50,7 @@ jobs:
         # Forge 舊版線——分階段逐版推進。目前：現代 Java-17 世代（ForgeGradle 6，共用同一份 adapter 源碼）。
         # 後續階段加入更舊世代（1.18.2 FG5.1 → 1.16.5 Java8 → 1.12.2 → 1.8.9 → 1.7.10；
         # 1.7.10 / 1.12.2 規劃改用 GTNHGradle/RetroFuturaGradle 以現代 Gradle 建置）。
-        mc: [ "1.20.1", "1.19.4" ]
+        mc: [ "1.20.1", "1.19.4", "1.18.2" ]
     steps:
       - uses: actions/checkout@v6
 

@@ -37,15 +37,16 @@ val forgeMc = providers.gradleProperty("forgeMc").orNull ?: "1.20.1"
 val forgeArtifact = when (forgeMc) {
     "1.20.1" -> "1.20.1-47.3.0"
     "1.19.4" -> "1.19.4-45.4.0"
-    else -> error("client-forge: 不支援的 forgeMc=$forgeMc（目前支援：1.20.1、1.19.4）")
+    "1.18.2" -> "1.18.2-40.2.0"
+    else -> error("client-forge: 不支援的 forgeMc=$forgeMc（目前支援：1.20.1、1.19.4、1.18.2）")
 }
 
 // ── sendSuccess 跨版本紀元（CommandFeedback 墊片）──
 // CommandSourceStack.sendSuccess 簽名隨 MC 版本而異，且裸 Component 多載在 1.20 已移除，
 // 無法以單一原始碼同時編譯；故依 forgeMc 選入對應的 CommandFeedback 紀元目錄（兩者 public 簽名相同）。
 val feedbackEra = when (forgeMc) {
-    "1.20.1" -> "supplier"   // 1.20+：sendSuccess(Supplier<Component>, boolean)
-    "1.19.4" -> "component"  // ≤1.19：sendSuccess(Component, boolean)
+    "1.20.1" -> "supplier"             // 1.20+：sendSuccess(Supplier<Component>, boolean)
+    "1.19.4", "1.18.2" -> "component"  // ≤1.19：sendSuccess(Component, boolean)
     else -> error("client-forge: forge feedback era 未定義：$forgeMc")
 }
 // 置於 java { } 區塊之後（java 外掛 / main source set 已存在），把紀元目錄掛入 main。
