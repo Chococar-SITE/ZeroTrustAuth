@@ -1,0 +1,50 @@
+# ZeroTrustAuth — MinecraftForge mod 中繼資料。
+#
+# ⚠️ 此檔為 Forge 專屬的 META-INF/mods.toml（非 NeoForge 的 META-INF/neoforge.mods.toml）。
+#     Forge 1.21.1（52.x）仍沿用傳統 mods.toml 檔名與結構。
+#
+# ⚠️ 此檔不含任何秘密。秘密（DISCORD_BOT_TOKEN、IP_HMAC_SECRET）一律走環境變數，
+#     絕不寫入設定檔或提交（見 CLAUDE.md 安全不變式 8 與公開 Repo 守則）。
+
+# javafml 為 Forge 的 Java mod 載入器；loaderVersion 對應 Forge 52.x 的 FML 版本範圍。
+modLoader = "javafml"
+loaderVersion = "[52,)"
+
+# 授權（佔位；實際以 repo 根目錄 LICENSE 為準）。
+license = "All Rights Reserved"
+
+# 問題回報走 SECURITY.md 私密管道，勿開公開 issue（見 CLAUDE.md）。
+issueTrackerURL = "https://github.com/Chococar-SITE/ZeroTrustAuth/issues"
+
+[[mods]]
+modId = "zerotrustauth"
+# 版本固定字面值，避免佔位符插值在不同 ForgeGradle 版本下行為不一致而導致建置失敗。
+version = "0.1.0"
+displayName = "ZeroTrustAuth"
+# 伺服器端 mod：為管理員在 Mojang 帳號之上加一道裝置層驗證（Never Trust, Always Verify）。
+description = '''
+Zero Trust device-layer authentication for Minecraft administrators (server-side).
+Freezes admin accounts on join until a second-factor device challenge passes
+(Option A: Ed25519 signature; Option B: Discord out-of-band). Never Trust, Always Verify.
+'''
+authors = "Chococar-SITE"
+
+# 伺服器端 mod：客戶端不需安裝即可連線（IGNORE 客戶端 / 伺服器間的 mod 清單比對）。
+displayTest = "IGNORE_SERVER_VERSION"
+
+# ── 依賴宣告 ───────────────────────────────────────────────
+# Forge 本體：限定 52.x（對應 Minecraft 1.21.1）。
+[[dependencies.zerotrustauth]]
+modId = "forge"
+type = "required"
+versionRange = "[52,)"
+ordering = "NONE"
+side = "SERVER"
+
+# Minecraft：限定 1.21.1。
+[[dependencies.zerotrustauth]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "SERVER"

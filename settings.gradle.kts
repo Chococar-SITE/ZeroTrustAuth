@@ -2,12 +2,14 @@ pluginManagement {
     repositories {
         maven("https://maven.fabricmc.net/") { name = "Fabric" }
         maven("https://maven.neoforged.net/releases") { name = "NeoForged" }
+        maven("https://maven.minecraftforge.net/") { name = "MinecraftForge" }
         gradlePluginPortal()
         mavenCentral()
     }
     plugins {
         id("fabric-loom") version "1.7.4"
         id("net.neoforged.moddev") version "2.0.78"
+        id("net.minecraftforge.gradle") version "6.0.+"
     }
 }
 
@@ -24,8 +26,10 @@ include("client-core")
 when (providers.gradleProperty("ztLoader").orNull ?: System.getenv("ZT_LOADER")) {
     "fabric" -> include("platform-fabric")
     "neoforge" -> include("platform-neoforge")
+    "forge" -> include("platform-forge")
     "all" -> {
         include("platform-fabric")
         include("platform-neoforge")
+        include("platform-forge")
     }
 }
