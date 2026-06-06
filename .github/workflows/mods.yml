@@ -2,12 +2,26 @@ name: Mods
 
 # 平台載入器（Fabric / NeoForge）建置——重型工具鏈（Loom / ModDevGradle 會反編譯 Minecraft），
 # 與主 build 隔離。每個載入器以獨立 matrix job 建置，CI 才有開放網路抓取其 maven。
-# TODO(26.1 migration — Rounds 2–3): re-enable push/PR triggers once the loader
-# modules are ported: Fabric (Loom 1.15) + NeoForge (ModDevGradle 2.0.141) to MC
-# 26.1 / Java 25 / Gradle 9, and the legacy Forge 1.20.1 job is moved onto its own
-# pinned Gradle 8 (ForgeGradle 6 does not run on Gradle 9). Manual-dispatch only
-# meanwhile so the in-flight loader work does not red-flag every push.
+# Fabric (Loom 1.15) 與 NeoForge (ModDevGradle 2.0.141) 已對齊 MC 26.1 / Java 25 / Gradle 9。
+# Forge 舊版線（1.20.1, ForgeGradle 6）不在此矩陣——ForgeGradle 6 無法跑 Gradle 9，
+# 將於 Round 3 以自有 pinned Gradle 8 job 加回。
 on:
+  push:
+    branches: [ main, "claude/**" ]
+    paths:
+      - 'core/**'
+      - 'platform-common/**'
+      - 'client-core/**'
+      - 'platform-fabric/**'
+      - 'platform-neoforge/**'
+      - 'platform-forge/**'
+      - 'client-fabric/**'
+      - 'client-neoforge/**'
+      - 'client-forge/**'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - '.github/workflows/mods.yml'
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -22,17 +36,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { loader: fabric, module: platform-fabric, clientModule: client-fabric, java: '21' }
-          - { loader: neoforge, module: platform-neoforge, clientModule: client-neoforge, java: '21' }
-          - { loader: forge, module: platform-forge, clientModule: client-forge, java: '17' }
+          # Forge（1.20.1）不在此——ForgeGradle 6 無法跑 Gradle 9；Round 3 以 pinned Gradle 8 加回。
+          - { loader: fabric, module: platform-fabric, clientModule: client-fabric }
+          - { loader: neoforge, module: platform-neoforge, clientModule: client-neoforge }
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up JDK ${{ matrix.java }}
+      # JDK 25：現代載入器 toolchain（Fabric/NeoForge @ 26.1）；JDK 21：core/platform-common/client-core。
+      - name: Set up JDK 21 + 25
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }}
+          java-version: |
+            21
+            25
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6

@@ -7,19 +7,22 @@
 
 plugins {
     java
-    // Loom 版本由 settings.gradle.kts 的 pluginManagement 指定（人工新增）；此處只套用，不帶版本。
-    // 若 pluginManagement 未集中管理版本，可改為 id("fabric-loom") version "1.7.4"。
-    id("fabric-loom")
+    // Loom 版本由 settings.gradle.kts pluginManagement 指定；此處只套用，不帶版本。
+    // Fabric 26.1：no-remap 的 net.fabricmc.fabric-loom（官方對應原生，毋須 remap）。
+    id("net.fabricmc.fabric-loom")
 }
 
-// Fabric 1.21.1 需要 Java 21。
+// Fabric / Minecraft 26.1 需要 Java 25。
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
     options.encoding = "UTF-8"
 }
 
@@ -29,21 +32,19 @@ repositories {
     maven("https://maven.fabricmc.net/") { name = "Fabric" }
 }
 
-// 版本集中於 gradle.properties。
-val minecraftVersion: String by project
-
-// Fabric 相關版本（對應 Minecraft 1.21.1）。
-// 與 plan / CLAUDE.md 一致：fabric-loader 0.16.5、fabric-api 0.102.0+1.21.1。
-val fabricLoaderVersion = "0.16.5"
-val fabricApiVersion = "0.102.0+1.21.1"
+// Fabric 相關版本（對應 Minecraft 26.1）。MC 用 "26.1"（與 fabric-api 的 +26.1 後綴一致；
+// Paper / NeoForge 用 26.1.2）。loom 1.15 no-remap：官方對應原生，故不宣告 mappings，
+// 且依賴用 implementation（非 modImplementation）——對齊 Fabric 官方 26.1 範本。
+val fabricMinecraftVersion = "26.1"
+val fabricLoaderVersion = "0.19.2"
+val fabricApiVersion = "0.145.1+26.1"
 
 dependencies {
-    // Minecraft 本體 + Mojang 官方對應（Loom 提供）。
-    minecraft("com.mojang:minecraft:$minecraftVersion")
-    mappings(loom.officialMojangMappings())
+    // Minecraft 本體（Loom no-remap 以官方對應提供；毋須 mappings 宣告）。
+    minecraft("com.mojang:minecraft:$fabricMinecraftVersion")
 
-    modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+    implementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
+    implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 
     // 核心邏輯與跨平台共用基礎建設。
     // 注意：此處為「編譯期」依賴。執行期 jar-in-jar（include(...)）打包 :core / :platform-common

@@ -9,18 +9,22 @@
 // 成功標準：`:client-fabric:build` 產出 remap 後的 client mod jar。
 plugins {
     java
-    // Loom 版本由 settings.gradle.kts 的 pluginManagement 指定（與 platform-fabric 一致）；此處只套用。
-    id("fabric-loom")
+    // Loom 版本由 settings.gradle.kts pluginManagement 指定（與 platform-fabric 一致）；此處只套用。
+    // Fabric 26.1：no-remap 的 net.fabricmc.fabric-loom。
+    id("net.fabricmc.fabric-loom")
 }
 
-// Fabric 1.21.1 需要 Java 21。
+// Fabric / Minecraft 26.1 需要 Java 25。
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
     options.encoding = "UTF-8"
 }
 
@@ -29,20 +33,17 @@ repositories {
     maven("https://maven.fabricmc.net/") { name = "Fabric" }
 }
 
-// 版本集中於 gradle.properties。
-val minecraftVersion: String by project
-
-// Fabric 相關版本（對應 Minecraft 1.21.1）。與 platform-fabric / CLAUDE.md 一致。
-val fabricLoaderVersion = "0.16.5"
-val fabricApiVersion = "0.102.0+1.21.1"
+// Fabric 相關版本（對應 Minecraft 26.1），與 platform-fabric 一致。
+val fabricMinecraftVersion = "26.1"
+val fabricLoaderVersion = "0.19.2"
+val fabricApiVersion = "0.145.1+26.1"
 
 dependencies {
-    // Minecraft 本體 + Mojang 官方對應（Loom 提供）。
-    minecraft("com.mojang:minecraft:$minecraftVersion")
-    mappings(loom.officialMojangMappings())
+    // Minecraft 本體（Loom no-remap 以官方對應提供；毋須 mappings 宣告）。
+    minecraft("com.mojang:minecraft:$fabricMinecraftVersion")
 
-    modImplementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
+    implementation("net.fabricmc:fabric-loader:$fabricLoaderVersion")
+    implementation("net.fabricmc.fabric-api:fabric-api:$fabricApiVersion")
 
     // 平台無關的客戶端金鑰 / 簽名邏輯（ClientKeyStore / SignatureResponder）與其依賴的 core。
     // 注意：此處為「編譯期」依賴。執行期 jar-in-jar（include(...)）打包 :client-core / :core

@@ -7,8 +7,11 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
-        id("fabric-loom") version "1.7.4"
-        id("net.neoforged.moddev") version "2.0.78"
+        // Fabric 26.1：改用 no-remap 的 net.fabricmc.fabric-loom（官方對應原生，毋須 remap）。
+        id("net.fabricmc.fabric-loom") version "1.15"
+        // NeoForge 26.1：ModDevGradle 2.0.141。
+        id("net.neoforged.moddev") version "2.0.141"
+        // Forge 舊版線（1.20.1）：ForgeGradle 6（Round 3 以自有 pinned Gradle 8 建置，見 mods.yml）。
         id("net.minecraftforge.gradle") version "6.0.+"
     }
 }

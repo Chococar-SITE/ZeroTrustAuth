@@ -19,19 +19,22 @@ plugins {
     id("net.neoforged.moddev")
 }
 
-// ModDevGradle 會套用 Java toolchain；此處明確鎖定 Java 21 位元碼（1.21.1 端使用者執行於 Java 21）。
+// NeoForge / Minecraft 26.1 需要 Java 25；明確鎖定 JDK 25 toolchain 與 Java 25 位元碼。
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
 }
 
 neoForge {
-    // NeoForge 21.1.x（對應 Minecraft 1.21.1）。
-    version = "21.1.95"
+    // NeoForge 26.1.2.71（對應 Minecraft 26.1.2；ModDevGradle 2.0.141）。
+    version = "26.1.2.71"
 
     // mod 版本中繼資料寫死於 META-INF/neoforge.mods.toml（version="0.1.0"），不依賴佔位符插值，
     // 避免不同 ModDevGradle 版本展開行為不一致而導致建置不穩。
