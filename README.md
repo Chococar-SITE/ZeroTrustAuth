@@ -6,7 +6,9 @@
 
 [![Build](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/build.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/build.yml)
 [![MC Server Test](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mc-server-test.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mc-server-test.yml)
-[![Mods](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods.yml)
+[![Mods · Fabric](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods-fabric.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods-fabric.yml)
+[![Mods · NeoForge](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods-neoforge.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods-neoforge.yml)
+[![Mods · Forge](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods-forge.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/mods-forge.yml)
 [![Secret Scan](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/secret-scan.yml/badge.svg)](https://github.com/Chococar-SITE/ZeroTrustAuth/actions/workflows/secret-scan.yml)
 ![Java](https://img.shields.io/badge/Java-17%2B-orange)
 ![Platforms](https://img.shields.io/badge/平台-Paper%20%7C%20Fabric%20%7C%20NeoForge%20%7C%20Forge-blue)

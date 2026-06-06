@@ -1,0 +1,72 @@
+name: Mods · NeoForge
+
+# NeoForge 載入器建置（MC 26.1.2 / ModDevGradle 2.0.141 / NeoForge 26.1.2.71 / Java 25 / Gradle 9.4 wrapper）。
+# 重型工具鏈（ModDevGradle 反編譯 Minecraft），與主 build 隔離；CI 才有開放網路抓取 neoforged/mojang maven。
+#
+# 觸發採「路徑分流」：只在 NeoForge 自身（platform-neoforge / client-neoforge）或**共用模組**
+# （core / platform-common / client-core / settings.gradle.kts / gradle.properties）變動時才跑。
+on:
+  push:
+    branches: [ main, "claude/**" ]
+    paths:
+      - 'platform-neoforge/**'
+      - 'client-neoforge/**'
+      - 'core/**'
+      - 'platform-common/**'
+      - 'client-core/**'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - '.github/workflows/mods-neoforge.yml'
+  pull_request:
+    paths:
+      - 'platform-neoforge/**'
+      - 'client-neoforge/**'
+      - 'core/**'
+      - 'platform-common/**'
+      - 'client-core/**'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - '.github/workflows/mods-neoforge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mods-neoforge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  neoforge:
+    name: Build neoforge (MC 26.1.2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+
+      # JDK 25：現代載入器 toolchain（NeoForge @ 26.1.2）；JDK 21：core/platform-common/client-core（→ Java 17 位元碼）。
+      - name: Set up JDK 21 + 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            25
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Build platform-neoforge + client-neoforge
+        run: ./gradlew :platform-neoforge:build :client-neoforge:build --no-daemon --stacktrace -PztLoader=neoforge
+
+      - name: Upload mod jars (server + client)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zerotrustauth-neoforge
+          path: |
+            platform-neoforge/build/libs/*.jar
+            client-neoforge/build/libs/*.jar
+          if-no-files-found: warn

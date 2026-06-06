@@ -8,10 +8,28 @@ name: MC Server Test
 # This complements build.yml (unit build/test) with an end-to-end runtime check
 # that the shaded plugin jar actually loads and works on a live server.
 
+# 路徑分流：此測試只啟動 Paper 外掛（platform-paper + core + harness），故僅在這些路徑變動時才跑，
+# 避免每次 commit 都啟動真實伺服器（約 5 分鐘）。
 on:
   push:
     branches: [ main, "claude/**" ]
+    paths:
+      - 'platform-paper/**'
+      - 'core/**'
+      - 'ci/mc-server-test.sh'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - '.github/workflows/mc-server-test.yml'
   pull_request:
+    paths:
+      - 'platform-paper/**'
+      - 'core/**'
+      - 'ci/mc-server-test.sh'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - '.github/workflows/mc-server-test.yml'
   workflow_dispatch:
 
 permissions:

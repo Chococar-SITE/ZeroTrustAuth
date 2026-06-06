@@ -1,0 +1,77 @@
+name: Mods · Forge (legacy)
+
+# Forge 舊版線建置。ForgeGradle 無法跑 repo wrapper 的 Gradle 9.4，故此工作流以 setup-gradle
+# 釘選的 Gradle 8.x 之 `gradle`（非 ./gradlew）建置；Forge 不依賴 platform-paper，settings 於
+# ztLoader=forge 時排除之（避免 Gradle 8 解析 platform-paper 的 JavaVersion.VERSION_25 失敗）。
+#
+# 觸發採「路徑分流」：只在 Forge 自身（platform-forge / client-forge）或**共用模組**
+# （core / platform-common / client-core / settings.gradle.kts / gradle.properties）變動時才跑。
+on:
+  push:
+    branches: [ main, "claude/**" ]
+    paths:
+      - 'platform-forge/**'
+      - 'client-forge/**'
+      - 'core/**'
+      - 'platform-common/**'
+      - 'client-core/**'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - '.github/workflows/mods-forge.yml'
+  pull_request:
+    paths:
+      - 'platform-forge/**'
+      - 'client-forge/**'
+      - 'core/**'
+      - 'platform-common/**'
+      - 'client-core/**'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradle/**'
+      - '.github/workflows/mods-forge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mods-forge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  forge:
+    name: Build forge (legacy 1.20.1, pinned Gradle 8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+
+      # Forge 1.20.1 需 JDK 17（ForgeGradle 反編譯 / 編譯）；core/platform-common/client-core toolchain 為 21。
+      # 多版本安裝，最後者（17）成為 JAVA_HOME = Gradle 8 daemon JDK。
+      - name: Set up JDK 21 + 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            17
+
+      # 釘選 Gradle 8.10.2（ForgeGradle 6 相容），提供 `gradle` 指令；忽略 repo 的 9.4 wrapper。
+      - name: Set up pinned Gradle 8.10.2
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Build platform-forge + client-forge
+        run: gradle :platform-forge:build :client-forge:build --no-daemon --stacktrace -PztLoader=forge
+
+      - name: Upload mod jars (server + client)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zerotrustauth-forge
+          path: |
+            platform-forge/build/libs/*.jar
+            client-forge/build/libs/*.jar
+          if-no-files-found: warn
