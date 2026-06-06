@@ -63,7 +63,7 @@
 | Paper / Spigot | 1.21.1 | LuckPerms transient（無則 Bukkit attachment）| ✅ 真實伺服器 CI 測試 |
 | Fabric | 1.21.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
 | NeoForge | 1.21.1 | 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
-| Forge | 1.19.2（舊版示範）| 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
+| Forge | 1.20.1（舊版旗艦）| 記憶體 transient 授權 | ✅ 伺服器＋客戶端 CI 建置 |
 
 各平台皆實作同一 `PlatformAdapter`，凍結一律在最早 hook 套用（移動/背包/容器/方塊/聊天/無敵，僅放行 `/authkey`）。客戶端 Mod（選項 A 自動簽名）共用 `client-core`（Ed25519＋SSH key 複用）。
 
