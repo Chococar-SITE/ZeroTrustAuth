@@ -38,14 +38,14 @@
 | 平台 | 目前建置版本 | Java | CI |
 |--|--|--|--|
 | Paper | 26.1.2 | 25 | ✅ 真機伺服器測試（`mc-server-test.yml`）|
-| Fabric | 26.1.2 | 25 | ✅ 建置（`mods.yml`）|
-| NeoForge | 26.1.2 | 25 | ✅ 建置（`mods.yml`）|
-| Forge | **1.20.1（舊版旗艦）** | 17 | ✅ 建置（`mods.yml`，獨立 pinned Gradle 8 job）|
+| Fabric | 26.1.2 | 25 | ✅ 建置（`mods-fabric.yml`）|
+| NeoForge | 26.1.2 | 25 | ✅ 建置（`mods-neoforge.yml`）|
+| Forge | **1.20.1 · 1.19.4**（舊版線） | 17 | ✅ 建置（`mods-forge.yml`，pinned Gradle 8 matrix）|
 
 落差說明：
 - ✅ 現代線（Paper/Fabric/NeoForge）已對齊政策**旗艦頂版 26.1**：**Paper 26.1.2** 經 `mc-server-test.yml` **真機伺服器測試**（啟動自檢通過、`authkey enroll` 可用）；**Fabric 26.1.2**、**NeoForge 26.1.2** 為 CI **建置**驗證（非真機執行）。
-- ✅ Forge 已對齊政策**旗艦頂版 1.20.1**（原 1.19.2 已淘汰），以 **pinned Gradle 8.10.2** 獨立 job 建置（ForgeGradle 6 無法在 Gradle 9 執行）。
-- 無待補落差。
+- ✅ Forge 舊版線已建置 **1.20.1 · 1.19.4**（ForgeGradle 6 / pinned Gradle 8.10.2 matrix；ForgeGradle 無法跑 Gradle 9 故獨立 job）。
+- 🟡 Forge 其餘精選版本（1.18.2 · 1.16.5 · 1.12.2 · 1.8.9 · 1.7.10）分階段 port 中——各為獨立 API 紀元，進度與接手指南見 [`docs/forge-legacy-port.md`](docs/forge-legacy-port.md)。
 
 ---
 
