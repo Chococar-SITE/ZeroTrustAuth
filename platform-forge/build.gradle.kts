@@ -1,13 +1,14 @@
-// platform-forge — MinecraftForge（伺服器端）平台適配（計劃 Phase 4）。
+// platform-forge — MinecraftForge（伺服器端）平台適配，**LEGACY** 版本線。
 //
-// 目標：Minecraft 1.21.1 / Java 21 / MinecraftForge 52.x，使用 ForgeGradle 6
-// （net.minecraftforge.gradle）。Forge / Mojang maven 在本沙箱被封鎖，故僅能於 CI
-// （開放網路）建置；驗收標準為 `:platform-forge:build` 產出 mod jar。
+// 本專案分工：NeoForge 負責現代 Minecraft（1.20.1+），Forge 僅保留給**舊版**。
+// 故本模組目標為 **Minecraft 1.19.2 / Java 17 / MinecraftForge 43.x**，使用 ForgeGradle 6
+// （net.minecraftforge.gradle，[6.0,6.2)，由 settings.gradle.kts pluginManagement 指定）。
+// Forge / Mojang maven 在本沙箱被封鎖，故僅能於 CI（開放網路）建置；驗收標準為
+// `:platform-forge:build` 產出 mod jar。
 //
 // 注意（settings.gradle.kts，由人類維護）：
-//   1) pluginManagement 需加入 Forge maven（https://maven.minecraftforge.net/）與
-//      ForgeGradle plugin 版本，否則 `id("net.minecraftforge.gradle")` 無法解析（見最終報告）。
-//   2) 需於 ztLoader 分支加入 `"forge" -> include("platform-forge")`。
+//   1) pluginManagement 已加入 Forge maven 與 ForgeGradle plugin（6.0.+，落在 [6.0,6.2)）。
+//   2) ztLoader 分支已 `"forge" -> include("platform-forge")`。
 //
 // 執行期函式庫打包（JDA / SnakeYAML 等，計劃待辦）：
 //   本模組目前以 compile-time 依賴 :core 與 :platform-common，確保「編譯 + build 產出 jar」。
@@ -15,33 +16,38 @@
 //   以 Forge 的 Jar-in-Jar（jarJar）內嵌或宣告為 mod 依賴；此為文件化後續工作，不影響本里程碑。
 plugins {
     `java-library`
-    // 版本由 settings.gradle.kts 的 pluginManagement 指定（見檔首說明與最終報告）。
-    // ForgeGradle 6（[6.0,6.2)）相容 Gradle 8.x。
+    // 版本由 settings.gradle.kts 的 pluginManagement 指定（6.0.+ → 落在 [6.0,6.2)）。
+    // 1.19.2 的 Forge MDK 使用 ForgeGradle [6.0,6.2)，與本專案 pluginManagement 一致。
     id("net.minecraftforge.gradle")
 }
 
-// ForgeGradle 會套用 Java toolchain；此處明確鎖定 Java 21 位元碼（1.21.1 端使用者執行於 Java 21）。
+// 1.19.2 需 Java 17。root 的 subprojects 區塊把 toolchain 設為 21（供現代模組）；
+// 本舊版模組於此**覆寫**為 Java 17，使 ForgeGradle 以 JDK 17 反編譯 / 編譯 Minecraft 1.19.2。
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    // 目標位元碼 Java 17（1.19.2 執行於 Java 17）。
+    options.release.set(17)
     options.encoding = "UTF-8"
 }
 
 minecraft {
-    // Mojang official mappings（1.21.1）。與 NeoForge / 1.21.1 端的官方映射一致。
-    mappings("official", "1.21.1")
+    // Mojang official mappings（1.19.2）。
+    mappings("official", "1.19.2")
 }
 
 // root 已提供 mavenCentral()；ForgeGradle 會自動加入 Forge（minecraft）製品庫。
 // 此處不重複宣告 repositories，依賴 root + ForgeGradle 自動注入，避免依賴注入時序問題。
 
 dependencies {
-    // Forge 1.21.1 — 52.0.40（52.x 系列，對應 Minecraft 1.21.1）。
-    minecraft("net.minecraftforge:forge:1.21.1-52.0.40")
+    // Forge 1.19.2 — 43.5.0（43.x 系列，對應 Minecraft 1.19.2；為實際發布的 1.19.2 Forge 版）。
+    minecraft("net.minecraftforge:forge:1.19.2-43.5.0")
 
     // 跨平台核心與共用基礎建設（DiscordNotifier / FileLogSink / YamlConfigLoader / YamlKeyRepository）。
     // compile-time 即可編譯；執行期內嵌（JiJ）為後續工作（見檔首）。

@@ -16,14 +16,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.network.RegisterPayloadHandlersEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.network.registration.PayloadRegistrar;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -35,7 +35,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
- * ZeroTrustAuth 的 MinecraftForge（伺服器端）進入點（計劃 Phase 4）。
+ * ZeroTrustAuth 的 MinecraftForge（伺服器端）進入點，**LEGACY 版本線**（Minecraft 1.19.2 / Forge 43.x）。
+ *
+ * <p>本專案分工：NeoForge 負責現代 Minecraft（1.20.1+），Forge 僅保留給<b>舊版</b>。故此模組目標
+ * 為 1.19.2；NeoForge 的對等實作（{@code ZeroTrustNeoForge}）保持現代 API，不在此處更動。
  *
  * <p>接線方式與 Paper（{@code ZeroTrustPlugin}）/ NeoForge / Fabric 一致：於伺服器啟動時蒐集所有依賴
  * （adapter / scheduler / notifier=共用 {@code DiscordNotifier} / logSink=共用 {@code FileLogSink} /
@@ -49,10 +52,11 @@ import java.util.logging.Logger;
  *   <li>{@link #onServerStopping} 主動撤回所有權限與凍結（fail-closed，計劃 5.2）。</li>
  * </ul>
  *
- * <h2>事件匯流排</h2>
+ * <h2>事件匯流排（1.19.2 Forge）</h2>
+ * 1.19.2 的 Forge <b>不支援</b>建構子注入 {@link IEventBus}（該特性於較新 Forge / NeoForge 才有）。
+ * 故此處以<b>無參數建構子</b>啟動，並自 {@link FMLJavaModLoadingContext#getModEventBus()} 取得 mod 匯流排：
  * <ul>
- *   <li><b>Mod 匯流排</b>（建構子注入的 {@link IEventBus}）：{@link RegisterPayloadHandlersEvent}
- *       （選項 A 挑戰自訂封包註冊）。</li>
+ *   <li><b>Mod 匯流排</b>：{@link FMLCommonSetupEvent}（於此註冊選項 A 挑戰的 {@link NonceMsg} SimpleChannel 訊息）。</li>
  *   <li><b>遊戲匯流排</b>（{@link MinecraftForge#EVENT_BUS}）：伺服器生命週期、玩家登入 / 登出、
  *       指令註冊，以及（引擎建立後）{@link FreezeHandler} 的凍結強制。</li>
  * </ul>
@@ -75,32 +79,31 @@ public final class ZeroTrustForge {
     private final Map<UUID, String> connectionIds = new ConcurrentHashMap<>();
 
     /**
-     * Forge 1.21 以建構子注入 mod 事件匯流排（亦支援 {@code FMLJavaModLoadingContext} /
-     * {@code ModContainer} 等其他注入型別）。此處取 {@link IEventBus} 形式，與 NeoForge 對稱。
+     * 1.19.2 Forge 以<b>無參數建構子</b>啟動 mod（不支援建構子注入事件匯流排）。
+     * 自 {@link FMLJavaModLoadingContext} 取得 mod 匯流排註冊 {@link FMLCommonSetupEvent}（網路設定），
+     * 並於遊戲匯流排（{@link MinecraftForge#EVENT_BUS}）註冊本實例的 {@code @SubscribeEvent} 遊戲事件。
      */
-    public ZeroTrustForge(IEventBus modEventBus) {
-        // Mod 匯流排：註冊選項 A 挑戰封包。
-        modEventBus.addListener(this::onRegisterPayloads);
+    public ZeroTrustForge() {
+        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        // Mod 匯流排：共用設定階段註冊選項 A 挑戰封包（SimpleChannel 訊息）。
+        modBus.addListener(this::onCommonSetup);
         // 遊戲匯流排：伺服器生命週期、玩家事件、指令註冊（@SubscribeEvent 實例方法）。
         MinecraftForge.EVENT_BUS.register(this);
-        log.info("ZeroTrustAuth (Forge) 已載入，等待伺服器啟動。");
+        log.info("ZeroTrustAuth (Forge 1.19.2) 已載入，等待伺服器啟動。");
     }
 
-    // ── Mod 匯流排：封包註冊 ─────────────────────────────────
+    // ── Mod 匯流排：共用設定（網路註冊）─────────────────────
 
     /**
-     * 註冊選項 A 挑戰封包（{@code zerotrust:auth}）。以 {@code optional()} 註冊：對未安裝本 mod 的
-     * 客戶端，Forge 會略過送出而非拋例外（與 Paper 的「盡力而為」一致）。本 mod 為伺服器端，
-     * 僅<b>送出</b>此封包；client handler 為 no-op（伺服器端永不被呼叫）。
+     * {@link FMLCommonSetupEvent}：在 {@link NonceMsg#CHANNEL} 上註冊選項 A 挑戰訊息（{@code zerotrustauth:auth}）。
+     * 1.19.2 無 1.20.5+ 的 {@code RegisterPayloadHandlersEvent} / {@code CustomPacketPayload}；改用 Forge
+     * {@link net.minecraftforge.network.simple.SimpleChannel}（見 {@link NonceMsg}）。本 mod 為伺服器端，
+     * 僅<b>送出</b>此 S2C 訊息；client handler 為 no-op（伺服器端永不被呼叫）。
+     *
+     * <p>{@code event.enqueueWork(...)}：網路註冊須於同步工作佇列執行，避免並行設定期競態。
      */
-    private void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar("zerotrustauth").optional();
-        registrar.playToClient(
-                AuthChallengePayload.TYPE,
-                AuthChallengePayload.STREAM_CODEC,
-                (payload, context) -> {
-                    // 伺服器端 mod：不處理入站；客戶端 Mod（選項 A，Phase 5）才會加領域前綴簽名回傳。
-                });
+    private void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(NonceMsg::register);
     }
 
     // ── 遊戲匯流排：伺服器生命週期 ───────────────────────────
