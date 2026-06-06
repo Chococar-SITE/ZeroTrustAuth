@@ -25,7 +25,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  * <ol>
  *   <li>收到伺服器的 Nonce 挑戰封包（通道 {@code zerotrust:auth}，{@link AuthChallengePayload}）→
  *       以本機金鑰<b>加領域前綴</b>（{@link #SIGNATURE_DOMAIN}）簽名 →
- *       以 {@link PacketDistributor#sendToServer} 回傳回應。玩家無需任何操作。</li>
+ *       以 {@link ClientPacketDistributor#sendToServer} 回傳回應。玩家無需任何操作。</li>
  *   <li>提供 {@code /ztclient pubkey} 客戶端指令，把可上傳公鑰印到聊天。</li>
  * </ol>
  *
@@ -61,7 +61,7 @@ import java.util.logging.Logger;
  * </ul>
  *
  * <p><b>dist 守衛：</b>以 {@code @Mod(dist = Dist.CLIENT)} 限定僅客戶端載入；建構子內再以
- * {@link FMLEnvironment#dist} 二次防護，伺服器端即使誤載亦不接線。
+ * {@link FMLEnvironment#getDist()} 二次防護，伺服器端即使誤載亦不接線。
  */
 @Mod(value = "zerotrustauthclient", dist = Dist.CLIENT)
 public final class ZeroTrustClientNeoForge {
@@ -100,7 +100,7 @@ public final class ZeroTrustClientNeoForge {
 
     /** NeoForge 以建構子注入 mod 匯流排與容器。 */
     public ZeroTrustClientNeoForge(IEventBus modEventBus, ModContainer modContainer) {
-        if (FMLEnvironment.dist != Dist.CLIENT) {
+        if (FMLEnvironment.getDist() != Dist.CLIENT) {
             // 縱深防禦：非客戶端環境一律不接線（伺服器端永不送回應）。
             return;
         }
@@ -141,7 +141,7 @@ public final class ZeroTrustClientNeoForge {
             }
             context.enqueueWork(() -> {
                 try {
-                    PacketDistributor.sendToServer(new AuthChallengePayload(response));
+                    ClientPacketDistributor.sendToServer(new AuthChallengePayload(response));
                 } catch (Throwable t) {
                     LOG.warning("ZeroTrustAuth 送出選項 A 回應失敗：" + t);
                 }

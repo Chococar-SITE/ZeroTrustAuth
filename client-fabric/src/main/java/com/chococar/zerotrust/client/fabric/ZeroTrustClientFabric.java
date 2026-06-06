@@ -100,8 +100,8 @@ public final class ZeroTrustClientFabric implements ClientModInitializer {
     public void onInitializeClient() {
         // 1) 註冊 payload 型別。S2C 用於收挑戰；C2S 用於送回應（雙向皆須註冊，否則送出非法）。
         try {
-            PayloadTypeRegistry.playS2C().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
-            PayloadTypeRegistry.playC2S().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
+            PayloadTypeRegistry.clientboundPlay().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
+            PayloadTypeRegistry.serverboundPlay().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
         } catch (Throwable t) {
             // 重複註冊或 API 差異不可拖垮客戶端啟動。
             LOG.warning("ZeroTrustAuth 客戶端封包註冊失敗（選項 A 將不可用）：" + t);
@@ -161,8 +161,8 @@ public final class ZeroTrustClientFabric implements ClientModInitializer {
     /** 註冊 {@code /ztclient pubkey}：把可上傳公鑰印到本地聊天（不送伺服器）。 */
     private void registerCommand(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(
-                net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal("ztclient")
-                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal("pubkey")
+                net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("ztclient")
+                        .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("pubkey")
                                 .executes(ctx -> {
                                     printPubKey(ctx.getSource());
                                     return 1;

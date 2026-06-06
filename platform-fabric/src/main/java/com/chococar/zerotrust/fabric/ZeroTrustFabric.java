@@ -75,8 +75,8 @@ public final class ZeroTrustFabric implements DedicatedServerModInitializer {
     @Override
     public void onInitializeServer() {
         // 1) 註冊自訂封包型別（必須早於任何接收器；S2C 用於送 Nonce，C2S 用於收簽名）。
-        PayloadTypeRegistry.playS2C().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playC2S().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(AuthPayload.TYPE, AuthPayload.STREAM_CODEC);
 
         // 2) 指令樹：執行時才解析引擎（CommandRegistrationCallback 早於引擎建立）。
         AuthKeyCommand command = new AuthKeyCommand(engineRef::get, connectionIds);
