@@ -2,11 +2,13 @@ package com.chococar.zerotrust.forge;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -47,6 +49,12 @@ public final class NonceMsg {
             PROTOCOL_VERSION::equals,
             PROTOCOL_VERSION::equals);
 
+    /**
+     * 伺服器端 C2S 接收器（由 {@code ZeroTrustForge} 於引擎就緒後設定）。
+     * 客戶端 Mod 回傳的簽名回應（{@code nonceLen||nonce||signature}）在此交給核心 onSignatureResponse。
+     */
+    public static volatile BiConsumer<ServerPlayer, byte[]> SERVER_RECEIVER;
+
     /** 承載的 Nonce（32 bytes；長度由核心 ChallengeManager 決定）。 */
     private final byte[] nonce;
 
@@ -85,7 +93,14 @@ public final class NonceMsg {
      * 處理：本 mod 為伺服器端，僅送出此 S2C 訊息，故此處實質為 no-op——
      * 僅標記封包已處理。真正的消費者是客戶端 Mod（選項 A，獨立模組）。
      */
-    public static void handle(NonceMsg msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().setPacketHandled(true);
+    public static void handle(NonceMsg msg, Supplier<NetworkEvent.Context> ctxSupplier) {
+        NetworkEvent.Context ctx = ctxSupplier.get();
+        // 伺服器端收到 C2S 簽名回應 → 交給已就緒的接收器（於主執行緒）。
+        BiConsumer<ServerPlayer, byte[]> receiver = SERVER_RECEIVER;
+        ServerPlayer sender = ctx.getSender();
+        if (receiver != null && sender != null && ctx.getDirection().getReceptionSide().isServer()) {
+            ctx.enqueueWork(() -> receiver.accept(sender, msg.nonce));
+        }
+        ctx.setPacketHandled(true);
     }
 }

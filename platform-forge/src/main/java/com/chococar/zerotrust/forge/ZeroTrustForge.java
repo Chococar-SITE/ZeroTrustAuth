@@ -174,6 +174,22 @@ public final class ZeroTrustForge {
         // ── 建立核心引擎 ──
         this.core = new ZeroTrustCore(ctx);
 
+        // ── 選項 A：設定 C2S 簽名回應接收器（格式 nonceLen||nonce||signature，與 Fabric/NeoForge 一致）──
+        NonceMsg.SERVER_RECEIVER = (player, data) -> {
+            AuthEngine eng = engine();
+            if (eng == null || data == null || data.length < 1) {
+                return;
+            }
+            int nonceLen = data[0] & 0xFF;
+            if (1 + nonceLen > data.length) {
+                return; // 畸形封包，忽略（fail-closed）。
+            }
+            byte[] nonce = java.util.Arrays.copyOfRange(data, 1, 1 + nonceLen);
+            byte[] signature = java.util.Arrays.copyOfRange(data, 1 + nonceLen, data.length);
+            UUID uuid = player.getUUID();
+            eng.onSignatureResponse(uuid, connectionIds.get(uuid), nonce, signature);
+        };
+
         // ── 啟動自檢（計劃 6.3）──
         // Forge 無外部權限後端依賴：以記憶體 transient 集合授權，故「權限後端已載入」恆為 true。
         SelfTest.Report report = SelfTest.run(ctx, true);

@@ -93,11 +93,32 @@ public final class ZeroTrustNeoForge {
      */
     private void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("zerotrustauth").optional();
-        registrar.playToClient(
+        // 雙向：S2C 送出挑戰 Nonce；C2S 接收客戶端 Mod 的簽名回應（與 Fabric 一致）。
+        registrar.playBidirectional(
                 AuthChallengePayload.TYPE,
                 AuthChallengePayload.STREAM_CODEC,
                 (payload, context) -> {
-                    // 伺服器端 mod：不處理入站；客戶端 Mod（選項 A，Phase 5）才會加領域前綴簽名回傳。
+                    // 僅處理伺服器端收到的 C2S 回應；格式：nonceLen(1) || nonce || signature。
+                    if (!(context.player() instanceof ServerPlayer player)) {
+                        return;
+                    }
+                    AuthEngine engine = engine();
+                    if (engine == null) {
+                        return;
+                    }
+                    byte[] data = payload.nonce();
+                    if (data == null || data.length < 1) {
+                        return;
+                    }
+                    int nonceLen = data[0] & 0xFF;
+                    if (1 + nonceLen > data.length) {
+                        return; // 畸形封包，忽略（fail-closed：不觸發驗證）。
+                    }
+                    byte[] nonce = java.util.Arrays.copyOfRange(data, 1, 1 + nonceLen);
+                    byte[] signature = java.util.Arrays.copyOfRange(data, 1 + nonceLen, data.length);
+                    UUID uuid = player.getUUID();
+                    String connectionId = connectionIds.get(uuid);
+                    context.enqueueWork(() -> engine.onSignatureResponse(uuid, connectionId, nonce, signature));
                 });
     }
 
