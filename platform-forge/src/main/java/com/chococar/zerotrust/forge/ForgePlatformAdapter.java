@@ -202,16 +202,21 @@ final class ForgePlatformAdapter implements PlatformAdapter {
         }
         final byte[] payload = nonce.clone();
         onMain(() -> {
-            ServerPlayer p = player(uuid);
+            final ServerPlayer p = player(uuid);
             if (p == null) {
                 return;
             }
             try {
-                // 盡力而為：payload 以 optional 註冊（見 ZeroTrustForge），對無本 mod 的客戶端
-                // Forge 會略過送出而不致拋例外；逾時後走選項 B / 嚴格模式。
-                PacketDistributor.sendToPlayer(p, new AuthChallengePayload(payload));
+                // 1.19.2 以 Forge SimpleChannel 送出（見 NonceMsg）。沒有 1.20.5+ 的
+                // PacketDistributor.sendToPlayer(player, payload)；改以
+                // CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), msg)。
+                // 盡力而為：對未安裝客戶端 Mod 者，逾時後走選項 B / 嚴格模式。
+                NonceMsg.CHANNEL.send(
+                        PacketDistributor.PLAYER.with(() -> p),
+                        new NonceMsg(payload));
             } catch (Throwable t) {
-                // 客戶端未宣告支援此 payload 等情況不可拖垮驗證流程。
+                // 客戶端未宣告支援此通道等情況不可拖垮驗證流程。
+                // 客戶端對應（收 Nonce、加領域前綴簽名回傳）為獨立的 compile-only 客戶端 Mod，後續工作。
                 log.fine("送出選項 A 挑戰失敗（" + uuid + "）：" + t.getMessage());
             }
         });
