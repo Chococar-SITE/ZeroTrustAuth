@@ -23,6 +23,12 @@ tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
 
+// Fabric 製品庫（fabric-loader / fabric-api / Yarn 等）。Loom 通常會自動注入此庫與 Mojang 庫，
+// 此處明示以避免依賴注入時序，並與 pluginManagement 的 Fabric 庫一致。root 已提供 mavenCentral()。
+repositories {
+    maven("https://maven.fabricmc.net/") { name = "Fabric" }
+}
+
 // 版本集中於 gradle.properties。
 val minecraftVersion: String by project
 
@@ -47,4 +53,13 @@ dependencies {
     //   巢狀打包進 mod jar，使其於真實伺服器執行（含 relocate/shadow 以避免衝突）。
     implementation(project(":core"))
     implementation(project(":platform-common"))
+}
+
+// 將專案版本注入 fabric.mod.json（佔位符 ${version}）。
+tasks.named<ProcessResources>("processResources") {
+    val props = mapOf("version" to project.version.toString())
+    inputs.properties(props)
+    filesMatching("fabric.mod.json") {
+        expand(props)
+    }
 }

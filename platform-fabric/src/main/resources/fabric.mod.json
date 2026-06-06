@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "zerotrustauth",
+  "version": "${version}",
+  "name": "ZeroTrustAuth",
+  "description": "Zero Trust device-layer authentication for Minecraft administrators (Never Trust, Always Verify). Server-side Fabric module.",
+  "authors": [
+    "Chococar-SITE"
+  ],
+  "license": "ARR",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "com.chococar.zerotrust.fabric.ZeroTrustFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.5",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

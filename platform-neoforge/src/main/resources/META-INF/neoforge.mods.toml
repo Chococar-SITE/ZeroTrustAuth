@@ -1,0 +1,44 @@
+# ZeroTrustAuth — NeoForge mod 中繼資料（Minecraft 1.21.1 使用 neoforge.mods.toml，非舊版 mods.toml）。
+#
+# ⚠️ 此檔不含任何秘密。秘密（DISCORD_BOT_TOKEN、IP_HMAC_SECRET）一律走環境變數，
+#     絕不寫入設定檔或提交（見 CLAUDE.md 安全不變式 8 與公開 Repo 守則）。
+
+# javafml 為 NeoForge 的 Java mod 載入器；loaderVersion 對應 NeoForge 21.1.x 的 FML 版本範圍。
+modLoader = "javafml"
+loaderVersion = "[4,)"
+
+# 授權（佔位；實際以 repo 根目錄 LICENSE 為準）。
+license = "All Rights Reserved"
+
+# 問題回報走 SECURITY.md 私密管道，勿開公開 issue（見 CLAUDE.md）。
+issueTrackerURL = "https://github.com/Chococar-SITE/ZeroTrustAuth/issues"
+
+[[mods]]
+modId = "zerotrustauth"
+# 版本固定字面值，避免佔位符插值在不同 ModDevGradle 版本下行為不一致而導致建置失敗。
+version = "0.1.0"
+displayName = "ZeroTrustAuth"
+# 伺服器端 mod：為管理員在 Mojang 帳號之上加一道裝置層驗證（Never Trust, Always Verify）。
+description = '''
+Zero Trust device-layer authentication for Minecraft administrators (server-side).
+Freezes admin accounts on join until a second-factor device challenge passes
+(Option A: Ed25519 signature; Option B: Discord out-of-band). Never Trust, Always Verify.
+'''
+authors = "Chococar-SITE"
+
+# ── 依賴宣告 ───────────────────────────────────────────────
+# NeoForge 本體：限定 21.1.x（對應 Minecraft 1.21.1）。
+[[dependencies.zerotrustauth]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1.0,21.2)"
+ordering = "NONE"
+side = "SERVER"
+
+# Minecraft：限定 1.21.1。
+[[dependencies.zerotrustauth]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.21.2)"
+ordering = "NONE"
+side = "SERVER"
