@@ -107,7 +107,6 @@
 | Phase 4 | Fabric / NeoForge（1.21.1）＋ Forge（1.19.2 舊版）伺服器端適配 | ✅ 完成（三載入器 CI 建置）|
 | Phase 5 | 客戶端 Mod（選項 A 自動簽名、SSH key 複用，共用 `client-core`）| ✅ 完成（client-fabric/neoforge/forge，CI 建置）|
 | Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（120 單元＋真實 Paper 伺服器＋6 個 mod 建置）|
-| Phase 6 | 整合測試、安全審查、文件 | 🔄 進行中（單元＋伺服器測試已就緒）|
 
 ## 貢獻
 
