@@ -8,12 +8,10 @@ name: MC Server Test
 # This complements build.yml (unit build/test) with an end-to-end runtime check
 # that the shaded plugin jar actually loads and works on a live server.
 
-# TODO(26.1 migration — Round 4): re-enable push/PR triggers once the harness
-# (ci/mc-server-test.sh) is ported from the deprecated PaperMC v2 API to the new
-# fill.papermc.io/v3 API and boots a real Paper 26.1 (Java 25) server. Until then
-# this is manual-dispatch only so it does not red-flag the 26.1 foundation work
-# (the v2 API does not list 26.1).
 on:
+  push:
+    branches: [ main, "claude/**" ]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -34,11 +32,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6

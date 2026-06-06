@@ -7,7 +7,8 @@
 # What this does, end to end:
 #   1. Reads the target Minecraft version from gradle.properties (single source
 #      of truth — never hardcode the MC version in CI).
-#   2. Downloads the latest Paper build for that version via the PaperMC v2 API.
+#   2. Downloads the latest stable Paper build for that version via the PaperMC
+#      v3 "Fill" API (fill.papermc.io/v3; the legacy v2 API is deprecated).
 #   3. Prepares a throwaway server directory (eula, server.properties, plugin jar).
 #   4. Boots a REAL Paper server headless, feeding console commands over a FIFO.
 #   5. Waits for "Done (" (server fully started), then asserts the plugin's
@@ -17,7 +18,8 @@
 #
 # Exit code: 0 only if every assertion passed; non-zero otherwise.
 #
-# Designed to run on a GitHub-hosted ubuntu runner (open internet, JDK 21).
+# Designed to run on a GitHub-hosted ubuntu runner (open internet, JDK 25 —
+# Paper 26.1 requires Java 25).
 # It is intentionally self-contained and heavily commented because the team
 # will maintain it. The marker strings it asserts on (see ASSERTION MARKERS
 # below) are a contract with the plugin — keep them in sync.
@@ -164,41 +166,73 @@ read_mc_version() {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Step 2 — download the latest Paper build for MC_VERSION via the PaperMC v2 API.
-# Prefers a build whose channel is "default" (stable/recommended) over
-# experimental builds; falls back to the newest build if none are "default".
+# Step 2 — download the latest Paper build for MC_VERSION via the PaperMC v3
+# "Fill" API (https://fill.papermc.io/v3). The legacy v2 API
+# (api.papermc.io/v2) is deprecated and does not list modern versions such as
+# 26.1.x — see https://docs.papermc.io/misc/downloads-service.
+#
+# v3 differs from v2 in several ways we rely on here:
+#   * The builds endpoint returns a top-level JSON ARRAY of build objects,
+#     newest first — NOT a {"builds":[...]} wrapper, and not oldest-first.
+#   * A build's number is the field ".id" (v2 used ".build").
+#   * The stable channel is "STABLE" (v2 used "default"); channels are one of
+#     ALPHA / BETA / STABLE / RECOMMENDED.
+#   * The download URL is EMBEDDED in the response at
+#     .downloads."server:default".url (v2 required hand-building the URL). The
+#     filename lives alongside it at .downloads."server:default".name.
+#   * Requests MUST carry a non-generic User-Agent that identifies the caller
+#     and a contact; bare curl/wget UAs are rejected/rate-limited.
+#   * Error payloads are JSON objects with "ok": false and a "message".
+#
+# We pick the newest STABLE build; if a version has only pre-release builds we
+# fail closed (no silent fallback to an experimental build in CI).
 # ─────────────────────────────────────────────────────────────────────────────
+readonly PAPER_API_UA="ZeroTrustAuth-CI/1.0 (github)"
+
 download_paper() {
   command -v jq   >/dev/null || { err "jq is required but not installed"; exit 1; }
   command -v curl >/dev/null || { err "curl is required but not installed"; exit 1; }
 
-  local builds_url="https://api.papermc.io/v2/projects/paper/versions/${MC_VERSION}/builds"
-  log "Querying Paper builds: ${builds_url}"
+  local builds_url="https://fill.papermc.io/v3/projects/paper/versions/${MC_VERSION}/builds"
+  log "Querying Paper builds (v3 Fill API): ${builds_url}"
 
   local builds_json
-  if ! builds_json="$(curl -fSL --retry 3 --retry-delay 2 "${builds_url}")"; then
+  if ! builds_json="$(curl -fSL --retry 3 --retry-delay 2 \
+                        -H "User-Agent: ${PAPER_API_UA}" "${builds_url}")"; then
     err "failed to query Paper builds for MC ${MC_VERSION} (is the version published on PaperMC?)"
     exit 1
   fi
 
-  # Prefer the latest build on the "default" channel; fall back to the very
-  # latest build of any channel if there is no default one.
-  local build
-  build="$(jq -r '[.builds[] | select(.channel == "default")] | last | .build // empty' <<<"${builds_json}")"
-  if [[ -z "${build}" ]]; then
-    info "no \"default\"-channel build found; falling back to latest available build"
-    build="$(jq -r '.builds | last | .build // empty' <<<"${builds_json}")"
+  # A well-formed error body looks like {"ok":false,"message":"..."}; surface it.
+  if jq -e 'type == "object" and (.ok == false)' <<<"${builds_json}" >/dev/null 2>&1; then
+    err "PaperMC API error for MC ${MC_VERSION}: $(jq -r '.message // "unknown error"' <<<"${builds_json}")"
+    exit 1
   fi
-  [[ -n "${build}" && "${build}" != "null" ]] || { err "could not determine a Paper build number"; exit 1; }
-  ok "selected Paper build: ${build}"
+  # We expect a non-empty array of builds for a published version.
+  if ! jq -e 'type == "array" and length > 0' <<<"${builds_json}" >/dev/null 2>&1; then
+    err "unexpected Paper builds response for MC ${MC_VERSION} (not a non-empty array — is the version published on PaperMC?)"
+    exit 1
+  fi
 
-  local jar_name="paper-${MC_VERSION}-${build}.jar"
-  local dl_url="https://api.papermc.io/v2/projects/paper/versions/${MC_VERSION}/builds/${build}/downloads/${jar_name}"
+  # Newest STABLE build: the array is newest-first, so the first STABLE entry is
+  # the latest stable one. No fallback to experimental builds in CI.
+  local build dl_url
+  build="$(jq -r 'first(.[] | select(.channel == "STABLE") | .id) // empty' <<<"${builds_json}")"
+  dl_url="$(jq -r 'first(.[] | select(.channel == "STABLE") | .downloads."server:default".url) // empty' <<<"${builds_json}")"
+  if [[ -z "${build}" || "${build}" == "null" || -z "${dl_url}" || "${dl_url}" == "null" ]]; then
+    err "no STABLE Paper build found for MC ${MC_VERSION} (only pre-release builds?) — failing closed"
+    exit 1
+  fi
+  ok "selected Paper build: ${build} (STABLE)"
+
   PAPER_JAR="${SERVER_DIR}/paper.jar"
   readonly PAPER_JAR
 
+  # Download the URL the API handed us verbatim (it points at PaperMC's CDN and
+  # may change shape over time — never reconstruct it by hand on v3).
   log "Downloading ${dl_url}"
-  if ! curl -fSL --retry 3 --retry-delay 2 -o "${PAPER_JAR}" "${dl_url}"; then
+  if ! curl -fSL --retry 3 --retry-delay 2 \
+        -H "User-Agent: ${PAPER_API_UA}" -o "${PAPER_JAR}" "${dl_url}"; then
     err "failed to download Paper jar"
     exit 1
   fi

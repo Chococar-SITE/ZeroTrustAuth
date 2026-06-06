@@ -1,7 +1,7 @@
 name: ZeroTrustAuth
 version: "${version}"
 main: com.chococar.zerotrust.paper.ZeroTrustPlugin
-api-version: "1.21"
+api-version: "26.1"
 author: Chococar-SITE
 description: Zero Trust device-layer authentication for Minecraft administrators (Never Trust, Always Verify).
 # LuckPerms is OPTIONAL — the plugin falls back to a Bukkit PermissionAttachment if it is absent.
