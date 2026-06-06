@@ -7,6 +7,9 @@ on:
     paths: [ '**/*.java', '**/*.kt', '.github/workflows/codeql.yml' ]
   pull_request:
     paths: [ '**/*.java', '**/*.kt' ]
+  schedule:
+    - cron: '37 4 * * 1'   # 每週一次基準掃描
+  workflow_dispatch:
 
 permissions:
   contents: read
