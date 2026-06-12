@@ -76,7 +76,7 @@ jobs:
       # the multi-MB Paper jar and world data) so failures are diagnosable.
       - name: Upload server log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mc-server-test-logs
           path: |
