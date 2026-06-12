@@ -23,7 +23,7 @@ dependencies {
     // 共用簽名訊息構造（SHA-512(domain||nonce)）與伺服器一致。
     api(project(":core"))
     // OpenSSH Ed25519 私鑰解析（SSH key 複用模式）。
-    implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.84")
 
     testImplementation(platform("org.junit:junit-bom:5.11.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
