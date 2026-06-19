@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # JDK 25：現代載入器 toolchain（Fabric @ 26.1.2）；JDK 21：core/platform-common/client-core（→ Java 17 位元碼）。
       - name: Set up JDK 21 + 25
