@@ -55,7 +55,7 @@ jobs:
         # 更舊世代：1.16.5（Java8/FG5.1/Gradle7）→ 1.12.2 → 1.8.9 → 1.7.10（規劃用 GTNHGradle/RetroFuturaGradle）。
         mc: [ "1.20.1", "1.19.4" ]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Forge（現代世代）需 JDK 17（ForgeGradle 反編譯 / 編譯）；core/platform-common/client-core toolchain 為 21。
       # 多版本安裝，最後者（17）成為 JAVA_HOME = Gradle 8 daemon JDK。

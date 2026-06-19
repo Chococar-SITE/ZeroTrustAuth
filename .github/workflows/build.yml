@@ -18,7 +18,7 @@ jobs:
     name: Build & Unit Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # 雙 JDK：JDK 25 跑 Gradle 9 daemon 並編譯現代模組（Paper 26.1，toolchain 25）；
       # JDK 21 供 core / platform-common / client-core 的 toolchain（輸出 release 17 位元碼）。
