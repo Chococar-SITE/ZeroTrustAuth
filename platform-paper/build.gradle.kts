@@ -7,7 +7,7 @@ plugins {
     // Shadow 8.3.10+ 升級內嵌 ASM/jdependency 以支援 Java 25/26 位元碼（class major 69/70）；
     // 8.3.5 會在 shadowJar 丟 "Unsupported class file major version 69"。8.3.x 亦支援 Gradle 9，
     // 且維持與舊版相同的 import 與 DSL（minimize/relocate/mergeServiceFiles），故毋須升級 9.x 重寫。
-    id("com.gradleup.shadow") version "8.3.11"
+    id("com.gradleup.shadow") version "9.4.3"
 }
 
 java {
