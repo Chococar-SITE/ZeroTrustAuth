@@ -12,7 +12,7 @@ pluginManagement {
         // 1.15 未以此新 plugin id 發布（解析失敗），26.1 的 loom 目前為 1.16-SNAPSHOT。
         id("net.fabricmc.fabric-loom") version "1.16-SNAPSHOT"
         // NeoForge 26.1：ModDevGradle 2.0.141。
-        id("net.neoforged.moddev") version "2.0.141"
+        id("net.neoforged.moddev") version "2.0.144"
         // Forge 舊版線（1.20.1）：ForgeGradle 6（Round 3 以自有 pinned Gradle 8 建置，見 mods.yml）。
         id("net.minecraftforge.gradle") version "6.0.+"
     }
