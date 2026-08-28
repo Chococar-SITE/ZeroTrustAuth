@@ -24,7 +24,7 @@ jobs:
       # JDK 21 供 core / platform-common / client-core 的 toolchain（輸出 release 17 位元碼）。
       # setup-java 多版本安裝：最後一個（25）成為預設 JAVA_HOME，兩者皆可被 Gradle toolchain 偵測。
       - name: Set up JDK 21 + 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: |
