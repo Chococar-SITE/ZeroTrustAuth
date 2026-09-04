@@ -29,7 +29,7 @@ dependencies {
         exclude(module = "opus-java")
     }
     // 非 Bukkit 平台的 YAML 設定 / 金鑰庫解析。
-    implementation("org.yaml:snakeyaml:2.3")
+    implementation("org.yaml:snakeyaml:2.7")
 
     testImplementation(platform("org.junit:junit-bom:5.11.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
